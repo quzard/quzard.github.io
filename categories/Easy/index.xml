@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Easy on 知其然，知其所以然</title><link>http://diudiu6.com/categories/Easy/</link><description>Recent content in Easy on 知其然，知其所以然</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 21 Aug 2020 17:21:10 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/Easy/index.xml" rel="self" type="application/rss+xml"/><item><title>111. 二叉树的最小深度</title><link>http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/</link><pubDate>Fri, 21 Aug 2020 17:21:10 +0800</pubDate><guid>http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/</guid><description>&lt;h2 id="难度简单">难度（简单）&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Easy on 知其然，知其所以然</title><link>https://quzard.github.io/categories/Easy/</link><description>Recent content in Easy on 知其然，知其所以然</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 21 Aug 2020 17:21:10 +0800</lastBuildDate><atom:link href="https://quzard.github.io/categories/Easy/index.xml" rel="self" type="application/rss+xml"/><item><title>111. 二叉树的最小深度</title><link>https://quzard.github.io/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/</link><pubDate>Fri, 21 Aug 2020 17:21:10 +0800</pubDate><guid>https://quzard.github.io/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/</guid><description>&lt;h2 id="难度简单">难度（简单）&lt;/h2>
 &lt;p>给定一个二叉树，找出其最小深度。&lt;/p>
 &lt;p>最小深度是从根节点到最近叶子节点的最短路径上的节点数量。&lt;/p>
 &lt;p>&lt;strong>说明:&lt;/strong> 叶子节点是指没有子节点的节点。&lt;/p>
@@ -9,7 +9,7 @@
 9 20
 / \
 15 7
-&lt;/code>&lt;/pre>&lt;p>返回它的最小深度 2.&lt;/p></description></item><item><title>LeetCode——1. 两数之和</title><link>http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</link><pubDate>Thu, 20 Aug 2020 11:36:26 +0800</pubDate><guid>http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</guid><description>&lt;h2 id="难度简单">难度（简单）&lt;/h2>
+&lt;/code>&lt;/pre>&lt;p>返回它的最小深度 2.&lt;/p></description></item><item><title>LeetCode——1. 两数之和</title><link>https://quzard.github.io/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</link><pubDate>Thu, 20 Aug 2020 11:36:26 +0800</pubDate><guid>https://quzard.github.io/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/</guid><description>&lt;h2 id="难度简单">难度（简单）&lt;/h2>
 &lt;p>给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回他们的数组下标。&lt;/p>
 &lt;p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。&lt;/p>
 &lt;p>&lt;strong>示例:&lt;/strong>&lt;/p>
