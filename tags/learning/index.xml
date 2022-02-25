@@ -1,21 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>learning on 知其然，知其所以然</title><link>https://quzard.github.io/tags/learning/</link><description>Recent content in learning on 知其然，知其所以然</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 21 Aug 2020 17:21:10 +0800</lastBuildDate><atom:link href="https://quzard.github.io/tags/learning/index.xml" rel="self" type="application/rss+xml"/><item><title>111. Minimum Depth of Binary Tree</title><link>https://quzard.github.io/post/111-Minimum-Depth-of-Binary-Tree/</link><pubDate>Fri, 21 Aug 2020 17:21:10 +0800</pubDate><guid>https://quzard.github.io/post/111-Minimum-Depth-of-Binary-Tree/</guid><description>&lt;p>Given a binary tree, find its minimum depth.&lt;/p>
-&lt;p>The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.&lt;/p>
-&lt;p>&lt;strong>Note:&lt;/strong> A leaf is a node with no children.&lt;/p>
-&lt;p>&lt;strong>Example:&lt;/strong>&lt;/p>
-&lt;p>Given binary tree &lt;code>[3,9,20,null,null,15,7]&lt;/code>,&lt;/p>
-&lt;pre tabindex="0">&lt;code> 3
-/ \
-9 20
-/ \
-15 7
-&lt;/code>&lt;/pre>&lt;p>return its minimum depth = 2.&lt;/p></description></item><item><title>LeetCode——1.Two Sum</title><link>https://quzard.github.io/post/1.-Two-Sum/</link><pubDate>Thu, 20 Aug 2020 11:36:26 +0800</pubDate><guid>https://quzard.github.io/post/1.-Two-Sum/</guid><description>&lt;h2 id="1-descriptioneasy">1. Description（easy）&lt;/h2>
-&lt;p>Given an array of integers, return &lt;strong>indices&lt;/strong> of the two numbers such that they add up to a specific target.&lt;/p>
-&lt;p>You may assume that each input would have *&lt;strong>exactly*&lt;/strong> one solution, and you may not use the &lt;em>same&lt;/em> element twice.&lt;/p>
-&lt;p>&lt;strong>Example:&lt;/strong>&lt;/p>
-&lt;pre tabindex="0">&lt;code>Given nums = [2, 7, 11, 15], target = 9,
-Because nums[0] + nums[1] = 2 + 7 = 9,
-return [0, 1].
-&lt;/code>&lt;/pre></description></item><item><title>类继承</title><link>https://quzard.github.io/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/</link><pubDate>Sat, 09 May 2020 15:18:30 +0800</pubDate><guid>https://quzard.github.io/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/</guid><description>&lt;h1 id="类继承">类继承&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>learning on 知其然，知其所以然</title><link>https://quzard.github.io/tags/learning/</link><description>Recent content in learning on 知其然，知其所以然</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 09 May 2020 15:18:30 +0800</lastBuildDate><atom:link href="https://quzard.github.io/tags/learning/index.xml" rel="self" type="application/rss+xml"/><item><title>类继承</title><link>https://quzard.github.io/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/</link><pubDate>Sat, 09 May 2020 15:18:30 +0800</pubDate><guid>https://quzard.github.io/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/</guid><description>&lt;h1 id="类继承">类继承&lt;/h1>
 &lt;ul>
 &lt;li>本章内容包括：
 &lt;ul>

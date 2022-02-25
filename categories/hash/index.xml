@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hash on 知其然，知其所以然</title><link>https://quzard.github.io/categories/hash/</link><description>Recent content in hash on 知其然，知其所以然</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 20 Aug 2020 11:36:26 +0800</lastBuildDate><atom:link href="https://quzard.github.io/categories/hash/index.xml" rel="self" type="application/rss+xml"/><item><title>LeetCode——1.Two Sum</title><link>https://quzard.github.io/post/1.-Two-Sum/</link><pubDate>Thu, 20 Aug 2020 11:36:26 +0800</pubDate><guid>https://quzard.github.io/post/1.-Two-Sum/</guid><description>&lt;h2 id="1-descriptioneasy">1. Description（easy）&lt;/h2>
-&lt;p>Given an array of integers, return &lt;strong>indices&lt;/strong> of the two numbers such that they add up to a specific target.&lt;/p>
-&lt;p>You may assume that each input would have *&lt;strong>exactly*&lt;/strong> one solution, and you may not use the &lt;em>same&lt;/em> element twice.&lt;/p>
-&lt;p>&lt;strong>Example:&lt;/strong>&lt;/p>
-&lt;pre tabindex="0">&lt;code>Given nums = [2, 7, 11, 15], target = 9,
-Because nums[0] + nums[1] = 2 + 7 = 9,
-return [0, 1].
-&lt;/code>&lt;/pre></description></item></channel></rss>
