@@ -1,0 +1,1116 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=referrer content="no-referrer-when-downgrade">
+<title>序列构成的数组 | 知其然，知其所以然</title>
+<meta property="og:title" content="序列构成的数组 - 知其然，知其所以然">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2019-01-24T20:51:23+08:00">
+<meta property="article:modified_time" content="2019-01-24T20:51:23+08:00">
+<meta name=Keywords content="golang">
+<meta name=description content="序列构成的数组">
+<meta name=author content="裘丢丢">
+<meta property="og:url" content="http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/">
+<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
+<link rel=stylesheet href=/css/normalize.css>
+<link rel=stylesheet href=/css/style.css>
+<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
+<link rel=stylesheet href=/css/douban.css>
+<link rel=stylesheet href=/css/other.css>
+</head>
+<body>
+<header id=header class=clearfix>
+<div class=container>
+<div class=col-group>
+<div class=site-name>
+<a id=logo href=http://diudiu6.com>
+知其然，知其所以然
+</a>
+<p class=description>知识广度是深度的副产品</p>
+</div>
+<div>
+<nav id=nav-menu class=clearfix>
+<a class=current href=http://diudiu6.com>首页</a>
+<a href=http://diudiu6.com/tools/ title=工具>工具</a>
+<a href=http://diudiu6.com/archives/ title=归档>归档</a>
+<a href=http://diudiu6.com/about/ title=关于>关于</a>
+</nav>
+</div>
+</div>
+</div>
+</header>
+<div id=body>
+<div class=container>
+<div class=col-group>
+<div class=col-8 id=main>
+<div class=res-cons>
+<style type=text/css>.post-toc{position:fixed;width:200px;margin-left:-210px;padding:5px 10px;font-family:Athelas,STHeiti,Microsoft Yahei,serif;font-size:12px;border:1px solid rgba(0,0,0,7%);border-radius:5px;background-color:rgba(255,255,255,.98);background-clip:padding-box;-webkit-box-shadow:1px 1px 2px rgba(0,0,0,.125);box-shadow:1px 1px 2px rgba(0,0,0,.125);word-wrap:break-word;white-space:nowrap;-webkit-box-sizing:border-box;box-sizing:border-box;z-index:999;cursor:pointer;max-height:70%;overflow-y:auto;overflow-x:hidden}.post-toc .post-toc-title{width:100%;margin:0 auto;font-size:20px;font-weight:400;text-transform:uppercase;text-align:center}.post-toc .post-toc-content{font-size:15px}.post-toc .post-toc-content>nav>ul{margin:10px 0}.post-toc .post-toc-content ul{padding-left:20px;list-style:square;margin:.5em;line-height:1.8em}.post-toc .post-toc-content ul ul{padding-left:15px;display:none}@media print,screen and (max-width:1057px){.post-toc{display:none}}</style>
+<div class=post-toc style=position:absolute;top:188px>
+<h2 class=post-toc-title>文章目录</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#容器序列存放的是它们所包含的任意类型的对象的引用>容器序列（存放的是它们所包含的任意类型的对象的引用）</a></li>
+<li><a href=#扁平序列存放的是值而不是引用是一段连续的内存空间更加紧凑但是它里面只能存放诸如字符字节和数值这种基础类型>扁平序列（存放的是值而不是引用，是一段连续的内存空间，更加紧凑，但是它里面只能存放诸如字符、字节和数值这种基础类型）</a></li>
+<li><a href=#可变序列>可变序列</a></li>
+<li><a href=#不可变序列>不可变序列</a></li>
+<li><a href=#列表推导列表推导是一种构建列表的方法是构建列表list的快捷方式>列表推导（列表推导是一种构建列表的方法，是构建列表（list）的快捷方式）</a></li>
+<li><a href=#生成器表达式生成器表达式可以用来创建其他任何类型的序列具有生成各种类型的元素并用它们来填充序列的功能>生成器表达式（生成器表达式可以用来创建其他任何类型的序列，具有生成各种类型的元素并用它们来填充序列的功能）</a></li>
+<li><a href=#元组tuple>元组(tuple)</a></li>
+<li><a href=#列表或元组的方法和属性那些由object类支持的方法没有列出来>列表或元组的方法和属性（那些由object类支持的方法没有列出来）</a></li>
+<li><a href=#高级切片形式的用法>高级切片形式的用法</a></li>
+<li><a href=#多维切片和省略>多维切片和省略</a></li>
+<li><a href=#给切片赋值>给切片赋值</a></li>
+<li><a href=#对序列使用和>对序列使用+和*</a></li>
+<li><a href=#序列的增量赋值>　序列的增量赋值</a></li>
+<li><a href=#排序listsort方法和内置函数sorted>排序——list.sort方法和内置函数sorted</a></li>
+<li><a href=#用bisect来管理已排序的序列>用bisect来管理已排序的序列</a></li>
+<li><a href=#数组array的使用>数组array的使用</a></li>
+<li><a href=#内存视图--memoryview>内存视图 memoryview</a></li>
+<li><a href=#双向队列和其他形式的队列>双向队列和其他形式的队列</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<script type=text/javascript>$(document).ready(function(){var a=$(".post-toc"),b,c,d;a.length&&(b=$("#main").offset().left,b<220&&a.css({width:b-10,"margin-left":0-b}),c=a.offset().top-20,d={start:{position:"absolute",top:c},process:{position:"fixed",top:20}},$(window).scroll(function(){var b=$(window).scrollTop();b<c?a.css(d.start):a.css(d.process)})),$("#TableOfContents").children().length<1&&$(".post-toc").remove()})</script>
+<article class=post>
+<header>
+<h1 class=post-title>序列构成的数组</h1>
+</header>
+<date class="post-meta meta-date">
+2019年1月24日
+</date>
+<div class=post-meta>
+<span>|</span>
+<span class=meta-category><a href=/categories/Python>Python</a></span>
+<span class=meta-category><a href=/categories/%E6%B5%81%E7%95%85%E7%9A%84python>流畅的python</a></span>
+<span class=meta-category><a href=/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0>第二章</a></span>
+</div>
+<div class=post-meta>
+<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span>
+</div>
+<div class=clear style=display:none>
+<div class=toc-article>
+<div class=toc-title>文章目录</div>
+</div>
+</div>
+<div class=post-content>
+<p>不管是python的哪种数据结构，字符串、列表、字节序列、数组、XML 元素，抑或是数据库查询结果，它们都共用一套丰富的操作：迭代、切片、排序，还有拼接。</p>
+<p>深入理解 Python 中的不同序列类型，不但能让我们避免重新发明轮子，它们的 API 还能帮助我们把自己定义的 API 设计得跟原生的序列一样，或者是跟未来可能出现的序列类型保持兼容。</p>
+<h3 id=容器序列存放的是它们所包含的任意类型的对象的引用>容器序列（存放的是它们所包含的任意类型的对象的引用）</h3>
+<blockquote>
+<p>list（列表）, tuple（元组）， collections（collections是Python内建的一个集合模块，提供了许多有用的集合类）, collections.deque（双端队列） 可以存放不同类型的数据，容器序列存放的是他们所包含的任意类型的<strong>对象的引用</strong></p>
+</blockquote>
+<h3 id=扁平序列存放的是值而不是引用是一段连续的内存空间更加紧凑但是它里面只能存放诸如字符字节和数值这种基础类型>扁平序列（存放的是值而不是引用，是一段连续的内存空间，更加紧凑，但是它里面只能存放诸如字符、字节和数值这种基础类型）</h3>
+<blockquote>
+<p>str（string）, bytes（字节序列）, bytearray（字节数组）, memoryview（内存视窗）, array.array（保存相同类型的数值的动态数组） 只能容纳一种类型，存放的是值而不是引用。是一段连续的内存空间，更加经凑</p>
+</blockquote>
+<h3 id=可变序列>可变序列</h3>
+<blockquote>
+<p>list（列表）, bytearray（字节数组）, array.array（保存相同类型的数值的动态数组）, collections.deque（双边队列）, memoryview（内存视窗）</p>
+</blockquote>
+<h3 id=不可变序列>不可变序列</h3>
+<blockquote>
+<p>tuple（元组）, str（字符串）, bytes（字节序列）</p>
+</blockquote>
+<h5 id=要存放1000万个浮点数时数组array的效率比列表list高的多因为数组在背后存在的并不是float对象而是数字的机器翻译也就是字节表述如果需要频繁对序列做先进先出的操作deque双端队列的速度应该会更快如果在代码里包含操作比如检查一个元素是否存在在一个集合里的频率很高用set集合会更合适但他不是序列是无序的>要存放1000万个浮点数时，数组（array）的效率比列表（list）高的多，因为数组在背后存在的并不是float对象，而是数字的机器翻译，也就是字节表述。如果需要频繁对序列做先进先出的操作，deque（双端队列）的速度应该会更快。如果在代码里包含操作（比如检查一个元素是否存在在一个集合里）的频率很高，用set（集合）会更合适，但他不是序列，是无序的。</h5>
+<h3 id=列表推导列表推导是一种构建列表的方法是构建列表list的快捷方式>列表推导（列表推导是一种构建列表的方法，是构建列表（list）的快捷方式）</h3>
+<p>示例 　用列表推导把一个字符串变成 Unicode 码位的列表</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> symbols <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;$¢£¥€¤&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> codes <span style=color:#000;font-weight:700>=</span> [<span style=color:#0086b3>ord</span>(symbol) <span style=color:#000;font-weight:700>for</span> symbol <span style=color:#000;font-weight:700>in</span> symbols]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> codes
+[<span style=color:#099>36</span>, <span style=color:#099>162</span>, <span style=color:#099>163</span>, <span style=color:#099>165</span>, <span style=color:#099>8364</span>, <span style=color:#099>164</span>]
+</code></pre></td></tr></table>
+</div>
+</div><p>map/fillter组合来创建表单</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>symbols <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;efaevg&#34;</span>
+beyond_ascii <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>list</span>(fillter(<span style=color:#000;font-weight:700>lambda</span> c: c <span style=color:#000;font-weight:700>&gt;</span> <span style=color:#099>127</span>, <span style=color:#0086b3>map</span>(<span style=color:#0086b3>ord</span>, symbols)))
+</code></pre></td></tr></table>
+</div>
+</div><p>列表推导</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>symbols <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;efaevg&#34;</span>
+beyond_ascii <span style=color:#000;font-weight:700>=</span> [<span style=color:#0086b3>ord</span>(s) <span style=color:#000;font-weight:700>for</span> s <span style=color:#000;font-weight:700>in</span> symbols <span style=color:#000;font-weight:700>if</span> <span style=color:#0086b3>ord</span>(s) <span style=color:#000;font-weight:700>&gt;</span> <span style=color:#099>127</span>]
+</code></pre></td></tr></table>
+</div>
+</div><p> python会忽略代码里[],{}和()中的换行，可以省略不太好看的续行符号\ </p>
+<p>列表推导不会再有变量泄漏的问题列表推导、生成器表达式，以及同它们很相似的集合（set）推导和字典（dict）推导，在 Python 3 中都有了自己的局部作用域，就像函数似的。表达式内部的变量和赋值只在局部起作用，表达式的上下文里的同名变量还可以被正常引用，局部变量并不会影响到它们。</p>
+<h6 id=列表推导实现笛卡尔积>列表推导实现笛卡尔积</h6>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>colors <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#34;white&#34;</span>, <span style=color:#d14>&#34;black&#34;</span>, <span style=color:#d14>&#34;red&#34;</span>]
+sizes <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#39;S&#39;</span>, <span style=color:#d14>&#39;M&#39;</span>, <span style=color:#d14>&#39;L&#39;</span>]
+T_shirts <span style=color:#000;font-weight:700>=</span> [(color, size) <span style=color:#000;font-weight:700>for</span> color <span style=color:#000;font-weight:700>in</span> colors <span style=color:#000;font-weight:700>for</span> size <span style=color:#000;font-weight:700>in</span> sizes]
+</code></pre></td></tr></table>
+</div>
+</div><h5 id=列表推导的作用只有一个生成列表>列表推导的作用只有一个：生成列表</h5>
+<h3 id=生成器表达式生成器表达式可以用来创建其他任何类型的序列具有生成各种类型的元素并用它们来填充序列的功能>生成器表达式（生成器表达式可以用来创建其他任何类型的序列，具有生成各种类型的元素并用它们来填充序列的功能）</h3>
+<p>虽然也可以用列表推导来初始化元组、数组或其他序列类型，但是生成器表达式是更好的选择。这是因为生成器表达式背后遵守了迭代器协议，<strong>可以逐个地产出元素</strong>，而不是先建立一个完整的列表，然后再把这个列表传递到某个构造函数里。前面那种方式显然能够<strong>节省内存</strong>。</p>
+<p>生成器表达式的语法跟列表推导差不多，只不过把方括号换成圆括号而已。</p>
+<h6 id=用生成器表达式初始化元组和数组>用生成器表达式初始化元组和数组</h6>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> symbols <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;$¢£¥€¤&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#0086b3>tuple</span>(<span style=color:#0086b3>ord</span>(symbol) <span style=color:#000;font-weight:700>for</span> symbol <span style=color:#000;font-weight:700>in</span> symbols) <span style=color:#998;font-style:italic># 如果生成器表达式是一个函数调用过程中的唯一参数，那么不需要额外再用括号把它围起来。</span>
+(<span style=color:#099>36</span>, <span style=color:#099>162</span>, <span style=color:#099>163</span>, <span style=color:#099>165</span>, <span style=color:#099>8364</span>, <span style=color:#099>164</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>import</span> <span style=color:#555>array</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> array<span style=color:#000;font-weight:700>.</span>array(<span style=color:#d14>&#39;I&#39;</span>, (<span style=color:#0086b3>ord</span>(symbol) <span style=color:#000;font-weight:700>for</span> symbol <span style=color:#000;font-weight:700>in</span> symbols)) <span style=color:#998;font-style:italic>#array 的构造方法需要两个参数，因此括号是必需的。array 构造方法的第一个参数指定了数组中数字的存储方式。</span>
+array(<span style=color:#d14>&#39;I&#39;</span>, [<span style=color:#099>36</span>, <span style=color:#099>162</span>, <span style=color:#099>163</span>, <span style=color:#099>165</span>, <span style=color:#099>8364</span>, <span style=color:#099>164</span>])
+</code></pre></td></tr></table>
+</div>
+</div><h6 id=使用生成器表达式计算笛卡儿积>使用生成器表达式计算笛卡儿积</h6>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> colors <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#39;black&#39;</span>, <span style=color:#d14>&#39;white&#39;</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> sizes <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#39;S&#39;</span>, <span style=color:#d14>&#39;M&#39;</span>, <span style=color:#d14>&#39;L&#39;</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>for</span> tshirt <span style=color:#000;font-weight:700>in</span> (<span style=color:#d14>&#39;</span><span style=color:#d14>%s</span><span style=color:#d14> </span><span style=color:#d14>%s</span><span style=color:#d14>&#39;</span> <span style=color:#000;font-weight:700>%</span> (c, s) <span style=color:#000;font-weight:700>for</span> c <span style=color:#000;font-weight:700>in</span> colors <span style=color:#000;font-weight:700>for</span> s <span style=color:#000;font-weight:700>in</span> sizes): <span style=color:#998;font-style:italic># 生成器表达式逐个产出元素，从来不会一次性产出一个含有 6 个 T 恤样式的列表。</span>
+<span style=color:#000;font-weight:700>...</span>     <span style=color:#0086b3>print</span>(tshirt)
+<span style=color:#000;font-weight:700>...</span>
+black S
+black M
+black L
+white S
+white M
+white L
+</code></pre></td></tr></table>
+</div>
+</div><h5 id=生成器表达式逐个产生元素从来不会一次性产出一个完整的列表>生成器表达式逐个产生元素，从来不会一次性产出一个完整的列表</h5>
+<h3 id=元组tuple>元组(tuple)</h3>
+<p>元祖可以用于没有字段名的记录</p>
+<h5 id=元组不仅仅是不可变的列表它还可以用于没有字段名的记录元组其实是对数据的记录元组中的每个元素都存放了记录中一个字段的数据外加这个字段的位置正是这个位置信息给数据赋予了意义如果把元组当作一些字段的集合那么数量和位置信息就变得非常重要了如果在任何的表达式里我们在元组内对元素排序这些元素所携带的信息就会丢失因为这些信息是跟它们的位置有关的>元组不仅仅是不可变的列表，它还可以用于没有字段名的记录。元组其实是对数据的记录：元组中的每个元素都存放了记录中一个字段的数据，外加这个字段的位置。正是这个位置信息给数据赋予了意义。如果把元组当作一些字段的集合，那么数量和位置信息就变得非常重要了如果在任何的表达式里我们在元组内对元素排序，这些元素所携带的信息就会丢失，因为这些信息是跟它们的位置有关的</h5>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> lax_coordinates <span style=color:#000;font-weight:700>=</span> (<span style=color:#099>33.9425</span>, <span style=color:#000;font-weight:700>-</span><span style=color:#099>118.408056</span>) 
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> city, year, pop, chg, area <span style=color:#000;font-weight:700>=</span> (<span style=color:#d14>&#39;Tokyo&#39;</span>, <span style=color:#099>2003</span>, <span style=color:#099>32450</span>, <span style=color:#099>0.66</span>, <span style=color:#099>8014</span>) 
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> traveler_ids <span style=color:#000;font-weight:700>=</span> [(<span style=color:#d14>&#39;USA&#39;</span>, <span style=color:#d14>&#39;31195855&#39;</span>), (<span style=color:#d14>&#39;BRA&#39;</span>, <span style=color:#d14>&#39;CE342567&#39;</span>), 
+<span style=color:#000;font-weight:700>...</span> (<span style=color:#d14>&#39;ESP&#39;</span>, <span style=color:#d14>&#39;XDA205856&#39;</span>)]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>for</span> passport <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>sorted</span>(traveler_ids): <span style=color:#998;font-style:italic>#在迭代的过程中，passport 变量被绑定到每个元组上。</span>
+<span style=color:#000;font-weight:700>...</span> <span style=color:#0086b3>print</span>(<span style=color:#d14>&#39;</span><span style=color:#d14>%s</span><span style=color:#d14>/</span><span style=color:#d14>%s</span><span style=color:#d14>&#39;</span> <span style=color:#000;font-weight:700>%</span> passport) 
+<span style=color:#000;font-weight:700>...</span>
+BRA<span style=color:#000;font-weight:700>/</span>CE342567
+ESP<span style=color:#000;font-weight:700>/</span>XDA205856
+USA<span style=color:#000;font-weight:700>/</span><span style=color:#099>31195855</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>for</span> country, _ <span style=color:#000;font-weight:700>in</span> traveler_ids: 
+<span style=color:#000;font-weight:700>...</span> <span style=color:#0086b3>print</span>(country)
+<span style=color:#000;font-weight:700>...</span>
+USA
+BRA
+ESP
+</code></pre></td></tr></table>
+</div>
+</div><p>for 循环可以分别提取元组里的元素，也叫作拆包（unpacking）。因为元组中第二个元素对我们没有什么用，所以它赋值给“_”占位符。
+拆包让元组可以完美地被当作记录来使用
+总结：记录与元祖——位置的重要性</p>
+<h4 id=元组拆包>元组拆包</h4>
+<p>元组拆包可以应用到任何可迭代对象上，唯一的硬性要求是，被可迭代对象中的元素数量必须要跟接收这些元素的元组的空档数一致。除非我们用*来表示忽略多余的元素</p>
+<p>*运算符把一个可迭代对象拆开作为函数的参数可以帮助我们把注意力集中在元组的部分数据中：</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#0086b3>divmod</span>(<span style=color:#099>20</span>, <span style=color:#099>8</span>)
+(<span style=color:#099>2</span>, <span style=color:#099>4</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> t <span style=color:#000;font-weight:700>=</span> (<span style=color:#099>20</span>, <span style=color:#099>8</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#0086b3>divmod</span>(<span style=color:#000;font-weight:700>*</span>t)
+(<span style=color:#099>2</span>, <span style=color:#099>4</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> quotient, remainder <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>divmod</span>(<span style=color:#000;font-weight:700>*</span>t)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> quotient, remainder
+(<span style=color:#099>2</span>, <span style=color:#099>4</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>用*来处理剩下的元素 ,在 Python 中，函数用 *args 来获取不确定数量的参数算是一种经典写法了。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, <span style=color:#000;font-weight:700>*</span>rest <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>range</span>(<span style=color:#099>5</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, rest
+(<span style=color:#099>0</span>, <span style=color:#099>1</span>, [<span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>4</span>])
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, <span style=color:#000;font-weight:700>*</span>rest <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>range</span>(<span style=color:#099>3</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, rest   
+(<span style=color:#099>0</span>, <span style=color:#099>1</span>, [<span style=color:#099>2</span>])
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, <span style=color:#000;font-weight:700>*</span>rest <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>range</span>(<span style=color:#099>2</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, b, rest
+(<span style=color:#099>0</span>, <span style=color:#099>1</span>, [])
+</code></pre></td></tr></table>
+</div>
+</div><p>在平行赋值中，*前缀只能用在一个变量名前面，但是这个变量可以出现在赋值表达式中任意位置</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, <span style=color:#000;font-weight:700>*</span>body, c, d <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>range</span>(<span style=color:#099>5</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> a, body, c, d
+(<span style=color:#099>0</span>, [<span style=color:#099>1</span>, <span style=color:#099>2</span>], <span style=color:#099>3</span>, <span style=color:#099>4</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>*</span>head, b, c, d <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>range</span>(<span style=color:#099>5</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> head, b, c, d
+([<span style=color:#099>0</span>, <span style=color:#099>1</span>], <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>4</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>平行赋值</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>b, a <span style=color:#000;font-weight:700>=</span> a, b
+</code></pre></td></tr></table>
+</div>
+</div><p>下面是另一个例子，这里元组拆包的用法则是让一个函数可以用元组的形式返回多个值，然后调用函数的代码就能轻松地接受这些返回值。比如 os.path.split() 函数就会返回以路径和最后一个文件名组成的元组 (path, last_part):</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>import</span> <span style=color:#555>os</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> _, filename <span style=color:#000;font-weight:700>=</span> os<span style=color:#000;font-weight:700>.</span>path<span style=color:#000;font-weight:700>.</span>split(<span style=color:#d14>&#39;/home/luciano/.ssh/idrsa.pub&#39;</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> filename
+<span style=color:#d14>&#39;idrsa.pub&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id=嵌套元组拆包>嵌套元组拆包</h4>
+<p>接受表达式的元组可以是嵌套式的，例如 (a, b, (c, d))。只要这个接受元组的嵌套结构符合表达式本身的嵌套结构，Python 就可以作出正确的对应。</p>
+<h4 id=具名元组>具名元组</h4>
+<p>collections.namedtuple 是一个工厂函数，它可以用来构建一个带字段名的元组和一个有名字的类——这个带名字的类对调试程序有很大帮助。</p>
+<p>实例用具名元组来记录一个城市的信息。定义和使用具名元组。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>from</span> <span style=color:#555>collections</span> <span style=color:#000;font-weight:700>import</span> namedtuple
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> City <span style=color:#000;font-weight:700>=</span> namedtuple(<span style=color:#d14>&#39;City&#39;</span>, <span style=color:#d14>&#39;name country population coordinates&#39;</span>)  <span style=color:#998;font-style:italic>#创建一个具名元组需要两个参数，一个是类名，另一个是类的各个字段的名字。后者可以是由数个字符串组成的可迭代对象，或者是由空格分隔开的字段名组成的字符串。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> tokyo <span style=color:#000;font-weight:700>=</span> City(<span style=color:#d14>&#39;Tokyo&#39;</span>, <span style=color:#d14>&#39;JP&#39;</span>, <span style=color:#099>36.933</span>, (<span style=color:#099>35.689722</span>, <span style=color:#099>139.691667</span>))  <span style=color:#998;font-style:italic>#存放在对应字段里的数据要以一串参数的形式传入到构造函数中（注意，元组的构造函数却只接受单一的可迭代对象）。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> tokyo
+City(name<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;Tokyo&#39;</span>, country<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;JP&#39;</span>, population<span style=color:#000;font-weight:700>=</span><span style=color:#099>36.933</span>, coordinates<span style=color:#000;font-weight:700>=</span>(<span style=color:#099>35.689722</span>,
+<span style=color:#099>139.691667</span>))
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> tokyo<span style=color:#000;font-weight:700>.</span>population  <span style=color:#998;font-style:italic>#你可以通过字段名或者位置来获取一个字段的信息。</span>
+<span style=color:#099>36.933</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> tokyo<span style=color:#000;font-weight:700>.</span>coordinates
+(<span style=color:#099>35.689722</span>, <span style=color:#099>139.691667</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> tokyo[<span style=color:#099>1</span>]
+<span style=color:#d14>&#39;JP&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> City<span style=color:#000;font-weight:700>.</span>_fields  <span style=color:#998;font-style:italic># _fields 属性是一个包含这个类所有字段名称的元组。</span>
+(<span style=color:#d14>&#39;name&#39;</span>, <span style=color:#d14>&#39;country&#39;</span>, <span style=color:#d14>&#39;population&#39;</span>, <span style=color:#d14>&#39;coordinates&#39;</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> LatLong <span style=color:#000;font-weight:700>=</span> namedtuple(<span style=color:#d14>&#39;LatLong&#39;</span>, <span style=color:#d14>&#39;lat long&#39;</span>)
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> delhi_data <span style=color:#000;font-weight:700>=</span> (<span style=color:#d14>&#39;Delhi NCR&#39;</span>, <span style=color:#d14>&#39;IN&#39;</span>, <span style=color:#099>21.935</span>, LatLong(<span style=color:#099>28.613889</span>, <span style=color:#099>77.208889</span>))
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> delhi <span style=color:#000;font-weight:700>=</span> City<span style=color:#000;font-weight:700>.</span>_make(delhi_data)  <span style=color:#998;font-style:italic># 用 _make() 通过接受一个可迭代对象来生成这个类的一个实例，它的作用跟City(*delhi_data) 是一样的。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> delhi<span style=color:#000;font-weight:700>.</span>_asdict()  <span style=color:#998;font-style:italic>#_asdict() 把具名元组以 collections.OrderedDict 的形式返回，我们可以利用它来把元组里的信息友好地呈现出来。</span>
+OrderedDict([(<span style=color:#d14>&#39;name&#39;</span>, <span style=color:#d14>&#39;Delhi NCR&#39;</span>), (<span style=color:#d14>&#39;country&#39;</span>, <span style=color:#d14>&#39;IN&#39;</span>), (<span style=color:#d14>&#39;population&#39;</span>,
+<span style=color:#099>21.935</span>), (<span style=color:#d14>&#39;coordinates&#39;</span>, LatLong(lat<span style=color:#000;font-weight:700>=</span><span style=color:#099>28.613889</span>, long<span style=color:#000;font-weight:700>=</span><span style=color:#099>77.208889</span>))])
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>for</span> key, value <span style=color:#000;font-weight:700>in</span> delhi<span style=color:#000;font-weight:700>.</span>_asdict()<span style=color:#000;font-weight:700>.</span>items():
+        <span style=color:#0086b3>print</span>(key <span style=color:#000;font-weight:700>+</span> <span style=color:#d14>&#39;:&#39;</span>, value)
+name: Delhi NCR
+country: IN
+population: <span style=color:#099>21.935</span>
+coordinates: LatLong(lat<span style=color:#000;font-weight:700>=</span><span style=color:#099>28.613889</span>, long<span style=color:#000;font-weight:700>=</span><span style=color:#099>77.208889</span>)
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=列表或元组的方法和属性那些由object类支持的方法没有列出来>列表或元组的方法和属性（那些由object类支持的方法没有列出来）</h3>
+<table>
+<thead>
+<tr>
+<th style=text-align:center></th>
+<th style=text-align:center>列表</th>
+<th style=text-align:center>元组</th>
+<th style=text-align:center></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style=text-align:center>s.<strong>add</strong>(s2)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>s + s2，拼接</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>iadd</strong>(s2)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>s += s2，就地拼接</td>
+</tr>
+<tr>
+<td style=text-align:center>s.append(e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>在尾部添加一个新元素</td>
+</tr>
+<tr>
+<td style=text-align:center>s.clear()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>删除所有元素</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>contains</strong>(e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>s 是否包含 e</td>
+</tr>
+<tr>
+<td style=text-align:center>s.copy()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>列表的浅复制</td>
+</tr>
+<tr>
+<td style=text-align:center>s.count(e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>e 在 s 中出现的次数</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>delitem</strong>(p)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>把位于 p 的元素删除</td>
+</tr>
+<tr>
+<td style=text-align:center>s.extend(it)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>把可迭代对象 it 追加给 s</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>getitem</strong>(p)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>s[p]，获取位置 p 的元素</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>getnewargs</strong>()</td>
+<td style=text-align:center></td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>在 pickle 中支持更加优化的序列化</td>
+</tr>
+<tr>
+<td style=text-align:center>s.index(e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>在 s 中找到元素 e 第一次出现的位置</td>
+</tr>
+<tr>
+<td style=text-align:center>s.insert(p, e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>在位置 p 之前插入元素e</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>iter</strong>()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>获取 s 的迭代器</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>len</strong>()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>len(s)，元素的数量</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>mul</strong>(n)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>s * n，n 个 s 的重复拼接</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>imul</strong>(n)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>s *= n，就地重复拼接</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>rmul</strong>(n)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center>n * s，反向拼接 *</td>
+</tr>
+<tr>
+<td style=text-align:center>s.pop([p])</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>删除最后或者是（可选的）位于 p 的元素，并返回它的值</td>
+</tr>
+<tr>
+<td style=text-align:center>s.remove(e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>删除 s 中的第一次出现的 e</td>
+</tr>
+<tr>
+<td style=text-align:center>s.reverse()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>就地把 s 的元素倒序排列</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>reversed</strong>()</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>返回 s 的倒序迭代器</td>
+</tr>
+<tr>
+<td style=text-align:center>s.<strong>setitem</strong>(p, e)</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>s[p] = e，把元素 e 放在位置p，替代已经在那个位置的元素</td>
+</tr>
+<tr>
+<td style=text-align:center>s.sort([key],[reverse])</td>
+<td style=text-align:center>•</td>
+<td style=text-align:center></td>
+<td style=text-align:center>就地对 s 中的元素进行排序，可选的参数有键（key）和是否倒序（reverse）</td>
+</tr>
+</tbody>
+</table>
+<h3 id=高级切片形式的用法>高级切片形式的用法</h3>
+<p>序列可以用 s[a:b] 的形式切片
+在 Python 里，像列表（list）、元组（tuple）和字符串（str）这类序列类型都支持切片操作</p>
+<h4 id=切片和区间会忽略最后一个元素>切片和区间会忽略最后一个元素</h4>
+<h4 id=对对象进行切片>对对象进行切片</h4>
+<p>用 s[a:b:c] 的形式对 s 在 a 和 b 之间以 c 为间隔取值。c 的值还可以为负，负值意味着反向取值</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> s <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;bicycle&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> s[::<span style=color:#099>3</span>]
+<span style=color:#d14>&#39;bye&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> s[::<span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>]
+<span style=color:#d14>&#39;elcycib&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> s[::<span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>]
+<span style=color:#d14>&#39;eccb&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>a:b:c 这种用法只能作为索引或者下标用在 [] 中来返回一个切片对象：slice(a, b,c)</p>
+<h3 id=多维切片和省略>多维切片和省略</h3>
+<h4 id=python-内置的序列类型都是一维的因此它们只支持单一的索引成对出现的索引是没有用的>Python 内置的序列类型都是一维的，因此它们只支持单一的索引，成对出现的索引是没有用的。</h4>
+<p>[] 运算符里还可以使用以逗号分开的多个索引或者是切片，</p>
+<h4 id=外部库-numpy-里就用到了这个特性二维的-numpyndarray-就可以用-ai-j-这种形式来获取抑或是用-amnkl-的方式来得到二维切片>外部库 NumPy 里就用到了这个特性，二维的 numpy.ndarray 就可以用 a[i, j] 这种形式来获取，抑或是用 a[m:n,k:l] 的方式来得到二维切片。</h4>
+<p>算符的话，对象的特殊方法 <strong>getitem</strong> 和 <strong>setitem</strong> 需要以元组的形式来接收a[i, j] 中的索引。也就是说，如果要得到 a[i, j] 的值，Python 会调用a.<strong>getitem</strong>((i, j))。</p>
+<h4 id=省略ellipsis的正确书写方法是三个英语句号而不是-unicdoe-码位-u2026表示的半个省略号>省略（ellipsis）的正确书写方法是三个英语句号（&mldr;），而不是 Unicdoe 码位 U+2026表示的半个省略号（&mldr;）</h4>
+<p>在NumPy中 &mldr; 用作多维数组切片的快捷方式 。如果 x 是四维数组，那么 x[i, &mldr;] 就是 x[i,:, :, :] 的缩写</p>
+<h3 id=给切片赋值>给切片赋值</h3>
+<p>如果把切片放在赋值语句的左边，或把它作为 del 操作的对象，我们就可以对序列进行嫁接、切除或就地修改操作。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>list</span>(<span style=color:#0086b3>range</span>(<span style=color:#099>10</span>))
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l
+[<span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>4</span>, <span style=color:#099>5</span>, <span style=color:#099>6</span>, <span style=color:#099>7</span>, <span style=color:#099>8</span>, <span style=color:#099>9</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l[<span style=color:#099>2</span>:<span style=color:#099>5</span>] <span style=color:#000;font-weight:700>=</span> [<span style=color:#099>20</span>, <span style=color:#099>30</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l
+[<span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>20</span>, <span style=color:#099>30</span>, <span style=color:#099>5</span>, <span style=color:#099>6</span>, <span style=color:#099>7</span>, <span style=color:#099>8</span>, <span style=color:#099>9</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>del</span> l[<span style=color:#099>5</span>:<span style=color:#099>7</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l
+[<span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>20</span>, <span style=color:#099>30</span>, <span style=color:#099>5</span>, <span style=color:#099>8</span>, <span style=color:#099>9</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l[<span style=color:#099>3</span>::<span style=color:#099>2</span>] <span style=color:#000;font-weight:700>=</span> [<span style=color:#099>11</span>, <span style=color:#099>22</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l
+[<span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>20</span>, <span style=color:#099>11</span>, <span style=color:#099>5</span>, <span style=color:#099>22</span>, <span style=color:#099>9</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l[<span style=color:#099>2</span>:<span style=color:#099>5</span>] <span style=color:#000;font-weight:700>=</span> <span style=color:#099>100</span>  <span style=color:#998;font-style:italic># 如果赋值的对象是一个切片，那么赋值语句的右侧必须是个可迭代对象。即便只有单独一个值，也要把它转换成可迭代的序列。  正确的做法是l[2:5] = [100]</span>
+Traceback (most recent call last):
+  File <span style=color:#d14>&#34;&lt;stdin&gt;&#34;</span>, line <span style=color:#099>1</span>, <span style=color:#000;font-weight:700>in</span> <span style=color:#000;font-weight:700>&lt;</span>module<span style=color:#000;font-weight:700>&gt;</span>
+<span style=color:#900;font-weight:700>TypeError</span>: can only assign an iterable
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l[<span style=color:#099>2</span>:<span style=color:#099>5</span>] <span style=color:#000;font-weight:700>=</span> [<span style=color:#099>100</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l
+[<span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>100</span>, <span style=color:#099>22</span>, <span style=color:#099>9</span>]
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=对序列使用和>对序列使用+和*</h3>
+<p>如果想要把一个序列复制几份然后再拼接起来，更快捷的做法是把这个序列乘以一个整数。同样，这个操作会产生一个新序列.</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l <span style=color:#000;font-weight:700>=</span> [<span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> l <span style=color:#000;font-weight:700>*</span> <span style=color:#099>5</span>
+[<span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>3</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#099>5</span> <span style=color:#000;font-weight:700>*</span> <span style=color:#d14>&#39;abcd&#39;</span>
+<span style=color:#d14>&#39;abcdabcdabcdabcdabcd&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>和 * 都遵循这个规律，不修改原有的操作对象，而是构建一个全新的序列。</li>
+</ul>
+<h4 id=append是引用不是传值第八章会说明引用和可变对象的原理>append是引用不是传值(第八章会说明引用和可变对象的原理)</h4>
+<p><strong>如果在 a * n 这个语句中，序列 a 里的元素是对其他可变对象的引用的话，你就需要格外注意了，因为这个式子的结果可能会出乎意料。比如，你想用my_list = [[]] * 3 来初始化一个由列表组成的列表，但是你得到的列表里包含的 3 个元素其实是 3 个引用，而且这 3 个引用指向的都是同一个列表。这可能不是你想要的效果。</strong></p>
+<p>下面错误用法</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>a <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#39;_&#39;</span>,<span style=color:#d14>&#39;_&#39;</span>,<span style=color:#d14>&#39;_&#39;</span>]<span style=color:#998;font-style:italic>#或者 a=[&#39;_&#39;]*3</span>
+board <span style=color:#000;font-weight:700>=</span>[]
+<span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>range</span>(<span style=color:#099>3</span>):
+    board<span style=color:#000;font-weight:700>.</span>append(a)
+board[<span style=color:#099>1</span>][<span style=color:#099>2</span>]<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;2&#39;</span>
+<span style=color:#0086b3>print</span>(board)
+<span style=color:#998;font-style:italic>#board = [[&#39;_&#39;, &#39;_&#39;, &#39;2&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;2&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;2&#39;]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面正确操作</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>board <span style=color:#000;font-weight:700>=</span> [[<span style=color:#d14>&#39;_&#39;</span>]<span style=color:#000;font-weight:700>*</span><span style=color:#099>3</span> <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>range</span>(<span style=color:#099>3</span>)]
+board[<span style=color:#099>1</span>][<span style=color:#099>2</span>]<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;2&#39;</span>
+<span style=color:#0086b3>print</span>(board)
+<span style=color:#998;font-style:italic>#[[&#39;_&#39;, &#39;_&#39;, &#39;_&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;2&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;_&#39;]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面正确操作</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>board <span style=color:#000;font-weight:700>=</span>[]
+<span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>range</span>(<span style=color:#099>3</span>):
+	a <span style=color:#000;font-weight:700>=</span> [<span style=color:#d14>&#39;_&#39;</span>,<span style=color:#d14>&#39;_&#39;</span>,<span style=color:#d14>&#39;_&#39;</span>]<span style=color:#998;font-style:italic>#或者 a=[&#39;_&#39;]*3   与上面区别，这里每次for都新建了一个列表</span>
+    board<span style=color:#000;font-weight:700>.</span>append(a)
+board[<span style=color:#099>1</span>][<span style=color:#099>2</span>]<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;2&#39;</span>
+<span style=color:#0086b3>print</span>(board)
+<span style=color:#998;font-style:italic>#[[&#39;_&#39;, &#39;_&#39;, &#39;_&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;2&#39;], [&#39;_&#39;, &#39;_&#39;, &#39;_&#39;]]</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=序列的增量赋值>　序列的增量赋值</h3>
+<p>增量赋值运算符 += 和 *= 的表现取决于它们的第一个操作对象
++= 背后的特殊方法是 <strong>iadd</strong> （用于“就地加法”）。但是如果一个类没有实现这个方法的话，Python 会退一步调用 <strong>add</strong> 。</p>
+<p>如果 a 实现了 <strong>iadd</strong> 方法，就会调用这个方法。同时对可变序列（例如list、bytearray 和 array.array）来说，a 会就地改动，就像调用了 a.extend(b)一样。但是如果 a 没有实现 <strong>iadd</strong> 的话，a += b 这个表达式的效果就变得跟 a = a+ b 一样了：首先计算 a + b，得到一个新的对象，然后赋值给 a。也就是说，在这个表达式中，变量名会不会被关联到新的对象，完全取决于这个类型有没有实现 <strong>iadd</strong> 这个方法。
+总体来讲，可变序列一般都实现了 <strong>iadd</strong> 方法，因此 += 是就地加法。而不可变序列根本就不支持这个操作，对这个方法的实现也就无从谈起。
+上面所说的这些关于 += 的概念也适用于 *=，不同的是，后者相对应的是 <strong>imul</strong>。关于 <strong>iadd</strong> 和 <strong>imul</strong></p>
+<h4 id=对不可变序列进行重复拼接操作的话效率会很低因为每次都有一个新对象而解释器需要把原来对象中的元素先复制到新的对象里然后再追加新的元素>对不可变序列进行重复拼接操作的话，效率会很低，因为每次都有一个新对象，而解释器需要把原来对象中的元素先复制到新的对象里，然后再追加新的元素。</h4>
+<h4 id=str-是一个例外因为对字符串做--实在是太普遍了为-str-初始化内存的时候程序会为它留出额外的可扩展空间因此进行增量操作的时候并不会涉及复制原有字符串到新位置这类操作>str 是一个例外，因为对字符串做 += 实在是太普遍了。为 str 初始化内存的时候，程序会为它留出额外的可扩展空间，因此进行增量操作的时候，并不会涉及复制原有字符串到新位置这类操作。</h4>
+<h4 id=元组中的神奇问题>元组中的神奇问题</h4>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>t<span style=color:#000;font-weight:700>=</span>(<span style=color:#099>1</span>,<span style=color:#099>2</span>,[<span style=color:#099>1</span>,<span style=color:#099>2</span>])
+t<span style=color:#000;font-weight:700>*=</span><span style=color:#099>3</span><span style=color:#998;font-style:italic>#也是引用拼接</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> t[<span style=color:#099>2</span>]<span style=color:#000;font-weight:700>+=</span>[<span style=color:#099>1</span>]<span style=color:#998;font-style:italic>#虽然报错，但依然+=成功,可以用t[2].extend([1])来避免这个异常问题</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> Traceback (most recent call last):
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span>   File <span style=color:#d14>&#34;&lt;stdin&gt;&#34;</span>, line <span style=color:#099>1</span>, <span style=color:#000;font-weight:700>in</span> <span style=color:#000;font-weight:700>&lt;</span>module<span style=color:#000;font-weight:700>&gt;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#900;font-weight:700>TypeError</span>: <span style=color:#d14>&#39;tuple&#39;</span> <span style=color:#0086b3>object</span> does <span style=color:#000;font-weight:700>not</span> support item assignment
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> t
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> (<span style=color:#099>1</span>, <span style=color:#099>2</span>, [<span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>1</span>], <span style=color:#099>1</span>, <span style=color:#099>2</span>, [<span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>1</span>], <span style=color:#099>1</span>, <span style=color:#099>2</span>, [<span style=color:#099>1</span>, <span style=color:#099>2</span>, <span style=color:#099>1</span>])
+</code></pre></td></tr></table>
+</div>
+</div><p>教训：
+1.不要把可变对象放在元组里面
+2.增量赋值不是一个原子操作，虽然抛出异常但还是完成了
+3.查看python的字节码不难但有帮助</p>
+<p>查看字节码</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>import</span> <span style=color:#555>dis</span>
+dis<span style=color:#000;font-weight:700>.</span>dis(<span style=color:#d14>&#39;t[2]+=[1]&#39;</span>)
+<span style=color:#099>2</span><span style=color:#000;font-weight:700>**</span><span style=color:#099>3</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#099>8</span>   
+<span style=color:#099>2</span><span style=color:#000;font-weight:700>**</span><span style=color:#099>4</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#099>16</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=排序listsort方法和内置函数sorted>排序——list.sort方法和内置函数sorted</h3>
+<p>list.sort(reverse = False, key = len) 会就地排序列表，不会把原列表复制一份。返回 None</p>
+<p>sorted(reverse = False, key = len) 会新建一个列表作为返回值</p>
+<p>reverse 默认为 False, 如果被设为 True, 被排序的序列里的元素会以降序输出</p>
+<p>key 一个只有一个参数的函数，这个函数会被用在序列里的每一个元素上，所产生的结果将是排序算法依赖的对比关键字。 比如在对一些字符串排序时，可以用key=str.lower 来实现忽略大小写的排序（书本36）key=len 进行基于字符串长度的排序。默认为恒值函数也就是默认用元素自己的值来排序。</p>
+<h3 id=用bisect来管理已排序的序列>用bisect来管理已排序的序列</h3>
+<p>bisect 模块包含两个主要函数，bisect 和 insort，两个函数都利用二分查找算法来在有序序列中查找或插入元素。</p>
+<h4 id=用bisect来搜索>用bisect来搜索</h4>
+<h4 id=用bisectinsort插入新元素>用bisect.insort插入新元素</h4>
+<p>例子
+haystack有序升序序列，needle需要插入的数</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>bisect<span style=color:#000;font-weight:700>.</span>bisect(haystack, needle, lo <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>, hi <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>len</span>(haystack))  <span style=color:#998;font-style:italic>#利用二分法来查找,bisect.bisect返回的位置前面的值，都小于或等于 needle 的值</span>
+bisect<span style=color:#000;font-weight:700>.</span>insort(haystack, needle)  <span style=color:#998;font-style:italic>#利用二分法来插入</span>
+
+bisect<span style=color:#000;font-weight:700>.</span>bisect_left(haystack, needle, lo <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>, hi <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>len</span>(haystack))  <span style=color:#998;font-style:italic># 利用二分法来查找,返回位置值，前面的值都  &lt;needle</span>
+bisect<span style=color:#000;font-weight:700>.</span>bisect_right(haystack, needle, lo <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>, hi <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>len</span>(haystack))  <span style=color:#998;font-style:italic># 利用二分法来查找,返回位置值，前面的值都 ≤needle</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>
+<img class=mx-auto alt=bisect.bisect_right src=png_5.png>
+</p>
+<p>
+<img class=mx-auto alt=bisect.bisect_left src=png_6.png>
+</p>
+<h4 id=根据一个分数找到他所对应的绩点>根据一个分数找到他所对应的绩点</h4>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>import</span> <span style=color:#555>bisect</span>
+<span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>grade</span>(score, breakpoints<span style=color:#000;font-weight:700>=</span>[<span style=color:#099>60</span>, <span style=color:#099>70</span>, <span style=color:#099>80</span>, <span style=color:#099>90</span>], grades<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;FDCBA&#39;</span>):
+    i <span style=color:#000;font-weight:700>=</span> bisect<span style=color:#000;font-weight:700>.</span>bisect(breakpoints, score)
+    <span style=color:#000;font-weight:700>return</span> grades[i]
+<span style=color:#0086b3>print</span>([grade(score) <span style=color:#000;font-weight:700>for</span> score <span style=color:#000;font-weight:700>in</span> [<span style=color:#099>22</span>, <span style=color:#099>44</span>, <span style=color:#099>66</span>, <span style=color:#099>77</span>, <span style=color:#099>34</span>, <span style=color:#099>88</span> , <span style=color:#099>99</span>]])
+<span style=color:#998;font-style:italic>#[&#39;F&#39;, &#39;F&#39;, &#39;D&#39;, &#39;C&#39;, &#39;F&#39;, &#39;B&#39;, &#39;A&#39;]</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=数组array的使用>数组array的使用</h3>
+<p>如果只需要处理数字列表的话，数组可能是个更好的选择。
+如果我们需要一个只包含数字的列表，那么 array.array 比 list 更高效。数组支持所有跟可变序列有关的操作，包括 .pop、.insert 和 .extend。另外，数组还提供从文件读取和存入文件的更快的方法，如 .frombytes 和 .tofile。</p>
+<p>创建数组需要一个类型码，这个类型码用来表示在底层的 C 语言应该存放怎样的数据类型。
+类型码网上都有
+比如 b 类型码代表的是有符号的字符（signed char），因此 array(&lsquo;b&rsquo;) 创建出的数组就只能存放一个字节大小的整数，范围从 -128到 127
+Python 不会允许你在数组里存放除指定类型之外的数据。</p>
+<h4 id=一个浮点型数组的创建存入文件和从文件读取的过程>一个浮点型数组的创建、存入文件和从文件读取的过程</h4>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>from</span> <span style=color:#555>array</span> <span style=color:#000;font-weight:700>import</span> array<span style=color:#998;font-style:italic>#引入array类型</span>
+<span style=color:#000;font-weight:700>from</span> <span style=color:#555>random</span> <span style=color:#000;font-weight:700>import</span> random
+
+floats <span style=color:#000;font-weight:700>=</span> array(<span style=color:#d14>&#39;d&#39;</span>, (random() <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> <span style=color:#0086b3>range</span>(<span style=color:#099>10</span><span style=color:#000;font-weight:700>**</span><span style=color:#099>7</span>)))<span style=color:#998;font-style:italic>#利用一个可迭代对象来建立一个双精度浮点数组（类型码是&#39;d&#39;)，1000万个</span>
+fp <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>open</span>(<span style=color:#d14>&#39;floats.bin&#39;</span>, <span style=color:#d14>&#39;wb&#39;</span>)
+floats<span style=color:#000;font-weight:700>.</span>tofile(fp)<span style=color:#998;font-style:italic>#把数组存入一个二进制文件里</span>
+fp<span style=color:#000;font-weight:700>.</span>close()
+floats2 <span style=color:#000;font-weight:700>=</span> array(<span style=color:#d14>&#39;d&#39;</span>)<span style=color:#998;font-style:italic>#新建一个双精度浮点空数组</span>
+fp <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>open</span>(<span style=color:#d14>&#39;floats.bin&#39;</span>, <span style=color:#d14>&#39;rb&#39;</span>)
+floats2<span style=color:#000;font-weight:700>.</span>frombytes(fp, <span style=color:#099>10</span><span style=color:#000;font-weight:700>**</span><span style=color:#099>7</span>)<span style=color:#998;font-style:italic>#把1000万个浮点数从二进制文件里读取出来</span>
+fp<span style=color:#000;font-weight:700>.</span>close()
+floats2 <span style=color:#000;font-weight:700>==</span> floats
+</code></pre></td></tr></table>
+</div>
+</div><h4 id=从-python-34-开始数组类型不再支持诸如-listsort-这种就地排序方法要给数组排序的话得用-sorted-函数新建一个数组>从 Python 3.4 开始，数组类型不再支持诸如 list.sort() 这种就地排序方法。要给数组排序的话，得用 sorted 函数新建一个数组：</h4>
+<p>想要在不打乱次序的情况下为数组添加新的元素，bisect.insort 还是能派上用场</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>a <span style=color:#000;font-weight:700>=</span> array<span style=color:#000;font-weight:700>.</span>array(a<span style=color:#000;font-weight:700>.</span>typecode, <span style=color:#0086b3>sorted</span>(a))
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=内存视图--memoryview>内存视图 memoryview</h3>
+<p>内存视窗能让你在不需要复制内容的前提下在数据结构之间共享内存
+memoryview.cast能用不同的方式读写同一块内存数据，而且内容字节不会随意移动
+memoryview.cast 会把同一块内存里的内容打包成一个全新的 memoryview 对象给你。</p>
+<p>在示例里我们利用 memoryview 精准地修改了一个数组的某个字节，这个数组的元素是 16 位二进制整数。
+　通过改变数组中的一个字节来更新数组里某个元素的值</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#000;font-weight:700>import</span> <span style=color:#555>array</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> numbers <span style=color:#000;font-weight:700>=</span> array<span style=color:#000;font-weight:700>.</span>array(<span style=color:#d14>&#39;h&#39;</span>, [<span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>, <span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>, <span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>])
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> memv <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>memoryview</span>(numbers) <span style=color:#998;font-style:italic># 利用含有 5 个短整型有符号整数的数组（类型码是 &#39;h&#39;）创建一个 memoryview。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#0086b3>len</span>(memv)
+<span style=color:#099>5</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> memv[<span style=color:#099>0</span>]  <span style=color:#998;font-style:italic># memv 里的 5 个元素跟数组里的没有区别。</span>
+<span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> memv_oct <span style=color:#000;font-weight:700>=</span> memv<span style=color:#000;font-weight:700>.</span>cast(<span style=color:#d14>&#39;B&#39;</span>)  <span style=color:#998;font-style:italic># 创建一个 memv_oct，这一次是把 memv 里的内容转换成 &#39;B&#39; 类型，也就是无符号字符。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> memv_oct<span style=color:#000;font-weight:700>.</span>tolist()  <span style=color:#998;font-style:italic># 以列表的形式查看 memv_oct 的内容。</span>
+[<span style=color:#099>254</span>, <span style=color:#099>255</span>, <span style=color:#099>255</span>, <span style=color:#099>255</span>, <span style=color:#099>0</span>, <span style=color:#099>0</span>, <span style=color:#099>1</span>, <span style=color:#099>0</span>, <span style=color:#099>2</span>, <span style=color:#099>0</span>]
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> memv_oct[<span style=color:#099>5</span>] <span style=color:#000;font-weight:700>=</span> <span style=color:#099>4</span>  <span style=color:#998;font-style:italic>#把位于位置 5 的字节赋值成 4。</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> numbers
+array(<span style=color:#d14>&#39;h&#39;</span>, [<span style=color:#000;font-weight:700>-</span><span style=color:#099>2</span>, <span style=color:#000;font-weight:700>-</span><span style=color:#099>1</span>, <span style=color:#099>1024</span>, <span style=color:#099>1</span>, <span style=color:#099>2</span>])  <span style=color:#998;font-style:italic># 因为我们把占 2 个字节的整数的高位字节改成了 4，所以这个有符号整数的值就变成了 1024。</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=双向队列和其他形式的队列>双向队列和其他形式的队列</h3>
+<p>利用 .append 和 .pop 方法，我们可以把列表当作栈或者队列来用（比如，把 .append和 .pop(0) 合起来用，就能模拟栈的“先进先出”的特点）。但是删除列表的第一个元素（抑或是在第一个元素之前添加一个元素）之类的操作是很耗时的，因为这些操作会牵扯到移动列表里的所有元素。</p>
+<p>collections.deque 类（双向队列）是一个线程安全、可以快速从两端添加或者删除元素的数据类型。而且如果想要有一种数据类型来存放“最近用到的几个元素”，deque 也是一个很好的选择。这是因为在新建一个双向队列的时候，你可以指定这个队列的大小，如果这个队列满员了，还可以从反向端删除过期的元素，然后在尾端添加新的元素。</p>
+<p>很多人认为python中的字典是无序的，因为它是按照hash来存储的，
+但是python中有个模块collections(英文，收集、集合)，里面自带了一个子类
+OrderedDict，实现了对字典对象中元素的排序。使用OrderedDict会根据放入元素的先后顺序进行排序
+OrderedDict对象的字典对象，如果其顺序不同那么Python也会把他们当做是两个不同的对象</p>
+</div>
+<div class=post-archive>
+<ul class=post-copyright>
+<li><strong>原文作者：</strong><a rel=author href=http://diudiu6.com>裘丢丢</a></li>
+<li style=word-break:break-all><strong>原文链接：</strong><a href=http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/>http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/</a></li>
+<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+</ul>
+</div>
+<br>
+<div class=post-archive>
+<h2>See Also</h2>
+<ul class=listing>
+<li><a href=/archives/></a></li>
+<li><a href=/search/>搜索</a></li>
+</ul>
+</div>
+<div class="post-meta meta-tags">
+<ul class=clearfix>
+<li><a href=/tags/%E6%B5%81%E7%95%85%E7%9A%84python>流畅的python</a></li>
+<li><a href=/tags/learning>learning</a></li>
+</ul>
+</div>
+</article>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//yourdiscussshortname.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+<div class="post bg-white">
+<script src=https://utteranc.es/client.js repo="your github repo" issue-term=pathname theme=github-light crossorigin=anonymous async></script>
+</div>
+</div>
+<footer id=footer>
+<div>
+&copy; 2022 <a href=http://diudiu6.com>知其然，知其所以然 By 裘丢丢</a>
+</div>
+<br>
+<div>
+<div class=github-badge>
+<a href=https://gohugo.io/ target=_black rel=nofollow><span class=badge-subject>Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+</div>
+<div class=github-badge>
+<a href=https://www.flysnow.org/ target=_black><span class=badge-subject>Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+</div>
+<div class=github-badge>
+<a href=https://github.com/flysnow-org/maupassant-hugo target=_black><span class=badge-subject>Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+</div>
+</div>
+</footer>
+<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<a id=rocket href=#top></a>
+<script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','G-P4G4EG6P5G','auto'),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
+<script src=/js/douban.js></script>
+</div>
+<div id=secondary>
+<section class=widget>
+<form id=search action=http://diudiu6.com/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
+<input type=text name=q maxlength=20 placeholder=Search>
+<input type=hidden name=sitesearch value=http://diudiu6.com>
+<button type=submit class="submit icon-search"></button>
+</form>
+</section>
+<section class=widget>
+<h3 class=widget-title>最近文章</h3>
+<ul class=widget-list>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/ title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/ title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/ title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/ title="2. 两数相加">2. 两数相加</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/ title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/ title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/ title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/ title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1.-Two-Sum/ title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/ title=类继承>类继承</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/categories/>分类</a></h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/categories/C++/>C++ (1)</a></li>
+<li><a href=http://diudiu6.com/categories/C++-primer-plus/>C++ primer plus (1)</a></li>
+<li><a href=http://diudiu6.com/categories/CNN/>CNN (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Easy/>Easy (2)</a></li>
+<li><a href=http://diudiu6.com/categories/LeetCode/>LeetCode (9)</a></li>
+<li><a href=http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Medium/>Medium (5)</a></li>
+<li><a href=http://diudiu6.com/categories/Python/>Python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/TensorFlow/>TensorFlow (1)</a></li>
+<li><a href=http://diudiu6.com/categories/hash/>hash (1)</a></li>
+<li><a href=http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/>page 搭建 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/>使用技巧 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>广度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>深度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习 (2)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/>爬虫 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/>第七章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/>第三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/>第九章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/>第二章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/>第五章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/>第八章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/>第六章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/>第十三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/>第四章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E9%80%92%E5%BD%92/>递归 (1)</a></li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/tags/>标签</a></h3>
+<div class=tagcloud>
+<a href=http://diudiu6.com/tags/C++-primer-plus/>C++ primer plus</a>
+<a href=http://diudiu6.com/tags/CNN/>CNN</a>
+<a href=http://diudiu6.com/tags/LeetCode/>LeetCode</a>
+<a href=http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法</a>
+<a href=http://diudiu6.com/tags/TensorFlow/>TensorFlow</a>
+<a href=http://diudiu6.com/tags/Windows/>Windows</a>
+<a href=http://diudiu6.com/tags/hash/>hash</a>
+<a href=http://diudiu6.com/tags/learning/>learning</a>
+<a href=http://diudiu6.com/tags/xpath/>xpath</a>
+<a href=http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/>初等数学</a>
+<a href=http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/>回溯</a>
+<a href=http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/>广度优先搜索 BFS</a>
+<a href=http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/>深度优先搜索 DFS</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习</a>
+<a href=http://diudiu6.com/tags/%E9%80%92%E5%BD%92/>递归</a>
+</div>
+</section>
+<section class=widget>
+<h3 class=widget-title>友情链接</h3>
+<ul class=widget-list>
+<li>
+<a target=_blank href=https://www.flysnow.org/ title=飞雪无情的博客>飞雪无情的博客</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>其它</h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/index.xml>文章 RSS</a></li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=referrer content="no-referrer-when-downgrade">
+<title>符合python风格的对象 | 知其然，知其所以然</title>
+<meta property="og:title" content="符合python风格的对象 - 知其然，知其所以然">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2019-05-22T10:23:52+08:00">
+<meta property="article:modified_time" content="2019-05-22T10:23:52+08:00">
+<meta name=Keywords content="golang">
+<meta name=description content="符合python风格的对象">
+<meta name=author content="裘丢丢">
+<meta property="og:url" content="http://diudiu6.com/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/">
+<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
+<link rel=stylesheet href=/css/normalize.css>
+<link rel=stylesheet href=/css/style.css>
+<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
+<link rel=stylesheet href=/css/douban.css>
+<link rel=stylesheet href=/css/other.css>
+</head>
+<body>
+<header id=header class=clearfix>
+<div class=container>
+<div class=col-group>
+<div class=site-name>
+<a id=logo href=http://diudiu6.com>
+知其然，知其所以然
+</a>
+<p class=description>知识广度是深度的副产品</p>
+</div>
+<div>
+<nav id=nav-menu class=clearfix>
+<a class=current href=http://diudiu6.com>首页</a>
+<a href=http://diudiu6.com/tools/ title=工具>工具</a>
+<a href=http://diudiu6.com/archives/ title=归档>归档</a>
+<a href=http://diudiu6.com/about/ title=关于>关于</a>
+</nav>
+</div>
+</div>
+</div>
+</header>
+<div id=body>
+<div class=container>
+<div class=col-group>
+<div class=col-8 id=main>
+<div class=res-cons>
+<style type=text/css>.post-toc{position:fixed;width:200px;margin-left:-210px;padding:5px 10px;font-family:Athelas,STHeiti,Microsoft Yahei,serif;font-size:12px;border:1px solid rgba(0,0,0,7%);border-radius:5px;background-color:rgba(255,255,255,.98);background-clip:padding-box;-webkit-box-shadow:1px 1px 2px rgba(0,0,0,.125);box-shadow:1px 1px 2px rgba(0,0,0,.125);word-wrap:break-word;white-space:nowrap;-webkit-box-sizing:border-box;box-sizing:border-box;z-index:999;cursor:pointer;max-height:70%;overflow-y:auto;overflow-x:hidden}.post-toc .post-toc-title{width:100%;margin:0 auto;font-size:20px;font-weight:400;text-transform:uppercase;text-align:center}.post-toc .post-toc-content{font-size:15px}.post-toc .post-toc-content>nav>ul{margin:10px 0}.post-toc .post-toc-content ul{padding-left:20px;list-style:square;margin:.5em;line-height:1.8em}.post-toc .post-toc-content ul ul{padding-left:15px;display:none}@media print,screen and (max-width:1057px){.post-toc{display:none}}</style>
+<div class=post-toc style=position:absolute;top:188px>
+<h2 class=post-toc-title>文章目录</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#格式描述>格式描述</a></li>
+</ul>
+</nav>
+</div>
+</div>
+<script type=text/javascript>$(document).ready(function(){var a=$(".post-toc"),b,c,d;a.length&&(b=$("#main").offset().left,b<220&&a.css({width:b-10,"margin-left":0-b}),c=a.offset().top-20,d={start:{position:"absolute",top:c},process:{position:"fixed",top:20}},$(window).scroll(function(){var b=$(window).scrollTop();b<c?a.css(d.start):a.css(d.process)})),$("#TableOfContents").children().length<1&&$(".post-toc").remove()})</script>
+<article class=post>
+<header>
+<h1 class=post-title>符合python风格的对象</h1>
+</header>
+<date class="post-meta meta-date">
+2019年5月22日
+</date>
+<div class=post-meta>
+<span>|</span>
+<span class=meta-category><a href=/categories/Python>Python</a></span>
+<span class=meta-category><a href=/categories/%E6%B5%81%E7%95%85%E7%9A%84python>流畅的python</a></span>
+<span class=meta-category><a href=/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0>第九章</a></span>
+</div>
+<div class=post-meta>
+<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span>
+</div>
+<div class=clear style=display:none>
+<div class=toc-article>
+<div class=toc-title>文章目录</div>
+</div>
+</div>
+<div class=post-content>
+<p>得益于 Python 数据模型，自定义类型的行为可以像内置类型那样自然。实现如自然的行为，靠的不是继承，而是鸭子类型（duck typing）：我们只需按照预定行为实对象所需的方法即可。</p>
+<h1 id=1特殊方法>1.特殊方法</h1>
+<p>repr()
+　　以便于开发者理解的方式返回对象的字符串表示形式。
+str()
+　　以便于用户理解的方式返回对象的字符串表示形式。</p>
+<p>bytes()
+　　调用它获取对象的字节序列表示形式</p>
+<p>_<em>format</em>_ 方法会被内置的 format() 函数和 str.format() 方法调用
+　　使用特殊的格式代码显示对象的字符串表示形式</p>
+<p>print 函数会调用 str 函数</p>
+<p>bytes 函数会调用 _<em>bytes</em>_ 方法，生成实例的二进制表示形式。</p>
+<p>abs 函数会调用 _<em>abs</em>_ 方法，返回实例的模。</p>
+<p>bool 函数会调用 _<em>bool</em>_ 方法，如果实例的模为零，返回 False，否则返回 True。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>from</span> <span style=color:#555>array</span> <span style=color:#000;font-weight:700>import</span> array
+<span style=color:#000;font-weight:700>import</span> <span style=color:#555>math</span>
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Vector2d</span>:
+    typecode <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;d&#39;</span>  <span style=color:#998;font-style:italic>#  typecode 是类属性，在 Vector2d 实例和字节序列之间转换时使用。</span>
+    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, x, y):
+        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>float</span>(x)   <span style=color:#998;font-style:italic># 在 __init__ 方法中把 x 和 y 转换成浮点数，尽早捕获错误，以防调用 Vector2d 函数时传入不当参数。</span>
+        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>float</span>(y)
+    <span style=color:#000;font-weight:700>def</span> __iter__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> (i <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> (<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x, <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y))  <span style=color:#998;font-style:italic># 定义 __iter__ 方法，把 Vector2d 实例变成可迭代的对象，这样才能拆包（例如，x, y = my_vector）。这个方法的实现方式很简单，直接调用生成器表达式一个接一个产出分量。</span>
+    <span style=color:#000;font-weight:700>def</span> __repr__(<span style=color:#999>self</span>):
+        class_name <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>type</span>(<span style=color:#999>self</span>)<span style=color:#000;font-weight:700>.</span>__name__
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#d14>&#39;</span><span style=color:#d14>{}</span><span style=color:#d14>(</span><span style=color:#d14>{!r}</span><span style=color:#d14>, </span><span style=color:#d14>{!r}</span><span style=color:#d14>)&#39;</span><span style=color:#000;font-weight:700>.</span>format(class_name, <span style=color:#000;font-weight:700>*</span><span style=color:#999>self</span>)  <span style=color:#998;font-style:italic>#__repr__ 方法使用 {!r} 获取各个分量的表示形式，然后插值，构成一个字符串；因为 Vector2d 实例是可迭代的对象，所以 *self 会把 x 和 y 分量提供给 format 函数。</span>
+    <span style=color:#000;font-weight:700>def</span> __str__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#0086b3>str</span>(<span style=color:#0086b3>tuple</span>(<span style=color:#999>self</span>))  <span style=color:#998;font-style:italic># 从可迭代的 Vector2d 实例中可以轻松地得到一个元组，显示为一个有序对。</span>
+    <span style=color:#000;font-weight:700>def</span> __bytes__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> (<span style=color:#0086b3>bytes</span>([<span style=color:#0086b3>ord</span>(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>typecode)]) <span style=color:#000;font-weight:700>+</span>  <span style=color:#998;font-style:italic># 为了生成字节序列，我们把 typecode 转换成字节序列，然后……</span>
+                <span style=color:#0086b3>bytes</span>(array(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>typecode, <span style=color:#999>self</span>)))  <span style=color:#998;font-style:italic># ……迭代 Vector2d 实例，得到一个数组，再把数组转换成字节序列。</span>
+    <span style=color:#000;font-weight:700>def</span> __eq__(<span style=color:#999>self</span>, other):
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#0086b3>tuple</span>(<span style=color:#999>self</span>) <span style=color:#000;font-weight:700>==</span> <span style=color:#0086b3>tuple</span>(other)  <span style=color:#998;font-style:italic># 为了快速比较所有分量，在操作数中构建元组。对 Vector2d 实例来说，可以这样做，不过仍有问题。参见下面的警告。</span>
+    <span style=color:#000;font-weight:700>def</span> __abs__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> math<span style=color:#000;font-weight:700>.</span>hypot(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x, <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y)  <span style=color:#998;font-style:italic>#模是 x 和 y 分量构成的直角三角形的斜边长。</span>
+    <span style=color:#000;font-weight:700>def</span> __bool__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#0086b3>bool</span>(<span style=color:#0086b3>abs</span>(<span style=color:#999>self</span>))  <span style=color:#998;font-style:italic># __bool__ 方法使用 abs(self) 计算模，然后把结果转换成布尔值，因此，0.0 是False，非零值是 True。</span>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id=2格式化显示>2.格式化显示</h1>
+<p>内置的 format() 函数和 str.format() 方法把各个类型的格式化方式委托给相应的._<em>format</em>_(format_spec) 方法。format_spec 是格式说明符，他是：</p>
+<ul>
+<li>format(my_obj, format_spec) 的第二个参数，或者</li>
+<li>str.format() 方法的格式字符串，{} 里代换字段中冒号后面的部分</li>
+</ul>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> brl <span style=color:#000;font-weight:700>=</span> <span style=color:#099>1</span><span style=color:#000;font-weight:700>/</span><span style=color:#099>2.43</span>  <span style=color:#998;font-style:italic># BRL到USD的货币兑换比价</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> brl
+<span style=color:#099>0.4115226337448559</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#0086b3>format</span>(brl, <span style=color:#d14>&#39;0.4f&#39;</span>)  <span style=color:#998;font-style:italic>#  格式说明符是 &#39;0.4f&#39;。</span>
+<span style=color:#d14>&#39;0.4115&#39;</span>
+<span style=color:#000;font-weight:700>&gt;&gt;&gt;</span> <span style=color:#d14>&#39;1 BRL = </span><span style=color:#d14>{rate:0.2f}</span><span style=color:#d14> USD&#39;</span><span style=color:#000;font-weight:700>.</span>format(rate<span style=color:#000;font-weight:700>=</span>brl)  <span style=color:#998;font-style:italic>#  格式说明符是 &#39;0.2f&#39;。代换字段中的 &#39;rate&#39; 子串是字段名称，与格式说明符无关，但是它决定把 .format() 的哪个参数传给代换字段。</span>
+<span style=color:#d14>&#39;1 BRL = 0.41 USD&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>&lsquo;{0.mass:5.3e}&rsquo; 这样的格式字符串其实包含两部分，冒号左边的 &lsquo;0.mass&rsquo; 在代换字段句法中是字段名，冒号后面的 &lsquo;5.3e&rsquo; 是格式说明符</p>
+<p>格式说明符使用的表示法叫格式规范微语言</p>
+<h2 id=格式描述>格式描述</h2>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fill 
+可以是任意字符<span style=color:#a61717;background-color:#e3d2d2>，</span>默认为空格<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+align 
+仅当指定最小宽度时有效<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+<span style=color:#000;font-weight:700>&lt;</span> 左对齐<span style=color:#a61717;background-color:#e3d2d2>（</span>默认选项<span style=color:#a61717;background-color:#e3d2d2>）</span>
+<span style=color:#000;font-weight:700>&gt;</span> 右对齐
+<span style=color:#000;font-weight:700>=</span> 仅对数字有效<span style=color:#a61717;background-color:#e3d2d2>；</span>将填充字符放到符号与数字间<span style=color:#a61717;background-color:#e3d2d2>，</span>例如 <span style=color:#000;font-weight:700>+</span><span style=color:#099>0001234</span>
+<span style=color:#000;font-weight:700>^</span> 居中对齐
+sign 
+仅对数字有效
+
+<span style=color:#000;font-weight:700>+</span> 所有数字均带有符号
+<span style=color:#000;font-weight:700>-</span> 仅负数带有符号<span style=color:#a61717;background-color:#e3d2d2>（</span>默认选项<span style=color:#a61717;background-color:#e3d2d2>）</span>
+ 即空格<span style=color:#a61717;background-color:#e3d2d2>；</span>正数前面带空格<span style=color:#a61717;background-color:#e3d2d2>，</span>负数前面带符号
+<span style=color:#d14>&#39;#&#39;</span> 
+只对整数有效
+
+自动在二进制<span style=color:#a61717;background-color:#e3d2d2>、</span>八进制<span style=color:#a61717;background-color:#e3d2d2>、</span>十六进制数值前添加对应的 <span style=color:#099>0</span>b<span style=color:#a61717;background-color:#e3d2d2>、</span><span style=color:#099>0</span>o<span style=color:#a61717;background-color:#e3d2d2>、</span> <span style=color:#099>0</span>x<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+<span style=color:#d14>&#39;,&#39;</span> 
+自动在每三个数字之间添加 , 分隔符<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+width 
+十进制数字<span style=color:#a61717;background-color:#e3d2d2>，</span>定义最小宽度<span style=color:#a61717;background-color:#e3d2d2>。</span>如果未指定<span style=color:#a61717;background-color:#e3d2d2>，</span>则由内容的宽度来决定<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+如果没有指定对齐方式<span style=color:#a61717;background-color:#e3d2d2>（</span>align<span style=color:#a61717;background-color:#e3d2d2>），</span>那么可以在 width 前面添加一个0来实现自动填充0<span style=color:#a61717;background-color:#e3d2d2>，</span>等价于 fill 设为 <span style=color:#099>0</span> 并且 align 设为 <span style=color:#000;font-weight:700>=</span><span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+precision 
+用于确定浮点数的精度<span style=color:#a61717;background-color:#e3d2d2>，</span>或字符串的最大长度<span style=color:#a61717;background-color:#e3d2d2>。</span>不可用于整型数值<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+<span style=color:#0086b3>type</span> 
+确定参数类型<span style=color:#a61717;background-color:#e3d2d2>，</span>默认为 s <span style=color:#a61717;background-color:#e3d2d2>，</span>即字符串<span style=color:#a61717;background-color:#e3d2d2>。</span>
+
+整数输出类型<span style=color:#a61717;background-color:#e3d2d2>：</span>
+
+b<span style=color:#a61717;background-color:#e3d2d2>：</span>以二进制格式输出
+c<span style=color:#a61717;background-color:#e3d2d2>：</span>将整数转换成对应的 unicode 字符
+d<span style=color:#a61717;background-color:#e3d2d2>：</span>以十进制输出<span style=color:#a61717;background-color:#e3d2d2>（</span>默认选项<span style=color:#a61717;background-color:#e3d2d2>）</span>
+o<span style=color:#a61717;background-color:#e3d2d2>：</span>以八进制输出
+x<span style=color:#a61717;background-color:#e3d2d2>：</span>以十六进制小写输出
+X<span style=color:#a61717;background-color:#e3d2d2>：</span>以十六进制大写输出
+n<span style=color:#a61717;background-color:#e3d2d2>：</span>与 d 相同<span style=color:#a61717;background-color:#e3d2d2>，</span>但使用当前环境的分隔符来分隔每3位数字
+十进制浮点数输出类型<span style=color:#a61717;background-color:#e3d2d2>：</span>
+
+e<span style=color:#a61717;background-color:#e3d2d2>：</span>指数标记<span style=color:#a61717;background-color:#e3d2d2>；</span>使用科学计数法输出<span style=color:#a61717;background-color:#e3d2d2>，</span>用e来表示指数部分<span style=color:#a61717;background-color:#e3d2d2>，</span>默认 precision 为6
+E<span style=color:#a61717;background-color:#e3d2d2>：</span>与 e 相同<span style=color:#a61717;background-color:#e3d2d2>，</span>但使用大写 E 来表示指数部分
+f<span style=color:#a61717;background-color:#e3d2d2>：</span>以定点形式输出数值<span style=color:#a61717;background-color:#e3d2d2>，</span>默认 precision 为6
+F<span style=color:#a61717;background-color:#e3d2d2>：</span>与 f 相同
+g<span style=color:#a61717;background-color:#e3d2d2>：</span>通用格式<span style=color:#a61717;background-color:#e3d2d2>；</span>对于给定的 precision p <span style=color:#000;font-weight:700>&gt;=</span> <span style=color:#099>1</span><span style=color:#a61717;background-color:#e3d2d2>，</span>取数值的p位有效数字<span style=color:#a61717;background-color:#e3d2d2>，</span>并以定点或科学计数法输出<span style=color:#a61717;background-color:#e3d2d2>（</span>默认选项<span style=color:#a61717;background-color:#e3d2d2>）</span>
+G<span style=color:#a61717;background-color:#e3d2d2>：</span>通用格式<span style=color:#a61717;background-color:#e3d2d2>；</span>与 g 相同<span style=color:#a61717;background-color:#e3d2d2>，</span>当数值过大时使用 E 来表示指数部分
+n<span style=color:#a61717;background-color:#e3d2d2>：</span>与 g 相同<span style=color:#a61717;background-color:#e3d2d2>，</span>但使用当前环境的分隔符来分隔每3位数字
+<span style=color:#000;font-weight:700>%</span><span style=color:#a61717;background-color:#e3d2d2>：</span>百分比标记<span style=color:#a61717;background-color:#e3d2d2>；</span>使用百分比的形式输出数值<span style=color:#a61717;background-color:#e3d2d2>，</span>同时设定 f 标记
+
+</code></pre></td></tr></table>
+</div>
+</div><p>格式规范微语言是可扩展的，因为各个类可以自行决定如何解释 format_spec 参数</p>
+<p>如果类没有定义 <strong>format</strong> 方法，从 object 继承的方法会返回 str(my_object)。</p>
+<p>然而，如果传入格式说明符，object.<strong>format</strong> 方法会抛出 TypeError：</p>
+<p>示例 Vector2d.<strong>format</strong> 方法，第 1 版</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>   <span style=color:#998;font-style:italic># 在Vector2d类中定义</span>
+   <span style=color:#000;font-weight:700>def</span> __format__(<span style=color:#999>self</span>, fmt_spec<span style=color:#000;font-weight:700>=</span><span style=color:#d14>&#39;&#39;</span>):
+       components <span style=color:#000;font-weight:700>=</span> (<span style=color:#0086b3>format</span>(c, fmt_spec) <span style=color:#000;font-weight:700>for</span> c <span style=color:#000;font-weight:700>in</span> <span style=color:#999>self</span>)  <span style=color:#998;font-style:italic># 使用内置的 format 函数把 fmt_spec 应用到向量的各个分量上，构建一个可迭代的格式化字符串。</span>
+       <span style=color:#000;font-weight:700>return</span> <span style=color:#d14>&#39;(</span><span style=color:#d14>{}</span><span style=color:#d14>, </span><span style=color:#d14>{}</span><span style=color:#d14>)&#39;</span><span style=color:#000;font-weight:700>.</span>format(<span style=color:#000;font-weight:700>*</span>components)  <span style=color:#998;font-style:italic># 把格式化字符串代入公式 &#39;(x, y)&#39; 中</span>
+</code></pre></td></tr></table>
+</div>
+</div><h1 id=3可散列的vector2d>3.可散列的Vector2d</h1>
+<p>目前 Vector2d 实例是不可散列的，因此不能放入集合（set）中</p>
+<p>为了把 Vector2d 实例变成可散列的，必须使用 <strong>hash</strong> 方法（还需要 _<em>eq</em>_ 方法，前面已经实现了）此外，还要让向量不可变</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Vector2d</span>:
+    typecode <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;d&#39;</span>
+    <span style=color:#000;font-weight:700>def</span> __init__(<span style=color:#999>self</span>, x, y):
+        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>__x <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>float</span>(x)  <span style=color:#998;font-style:italic>#使用两个前导下划线（尾部没有下划线，或者有一个下划线），把属性标记为私有</span>
+        <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>__y <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>float</span>(y)
+    <span style=color:#3c5d5d;font-weight:700>@property</span>  <span style=color:#998;font-style:italic># @property 装饰器把读值方法标记为特性。</span>
+    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>x</span>(<span style=color:#999>self</span>):  <span style=color:#998;font-style:italic>#读值方法与公开属性同名，都是 x</span>
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>__x  <span style=color:#998;font-style:italic>#直接返回 self.__x</span>
+    <span style=color:#3c5d5d;font-weight:700>@property</span> <span style=color:#998;font-style:italic># 以同样的方式处理 y 特性</span>
+    <span style=color:#000;font-weight:700>def</span> <span style=color:#900;font-weight:700>y</span>(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>__y
+    <span style=color:#000;font-weight:700>def</span> __iter__(<span style=color:#999>self</span>):
+        <span style=color:#000;font-weight:700>return</span> (i <span style=color:#000;font-weight:700>for</span> i <span style=color:#000;font-weight:700>in</span> (<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x, <span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y)) <span style=color:#998;font-style:italic># 需要读取 x 和 y 分量的方法可以保持不变，通过 self.x 和 self.y 读取公开特性，而不必读取私有属性，因此上述代码清单省略了这个类的其他代码。</span>
+    <span style=color:#000;font-weight:700>def</span> __hash__(<span style=color:#999>self</span>):
+    	<span style=color:#000;font-weight:700>return</span> <span style=color:#0086b3>hash</span>(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>x) <span style=color:#000;font-weight:700>^</span> <span style=color:#0086b3>hash</span>(<span style=color:#999>self</span><span style=color:#000;font-weight:700>.</span>y)
+    <span style=color:#000;font-weight:700>def</span> __eq__(<span style=color:#999>self</span>, other):
+        <span style=color:#000;font-weight:700>return</span> <span style=color:#0086b3>tuple</span>(<span style=color:#999>self</span>) <span style=color:#000;font-weight:700>==</span> <span style=color:#0086b3>tuple</span>(other) 
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>要想创建可散列的类型，不一定要实现特性，也不一定要保护实例属性。只需正确地实现 hash 和 eq 方法即可。但是，实例的散列值绝不应该变化，因此我们借机提到了只读特性。</strong></p>
+<h1 id=4python的私有属性和受保护的属性>4.Python的私有属性和“受保护的”属性</h1>
+<p>现在，你创建了 Dog 类的子类：Beagle。，如果以 __mood 的形式（两个前导下划线，尾部没有或最多有一个下划线）命名实例属性，Python 会把属性名存入实例的 __dict__ 属性中，而且会在前面加上一个下划线和类名。因此，对 Dog 类来说，__mood 会变成 _Dog__mood；这个语言特性叫名称改写</p>
+<p>但是，只要知道改写私有属性名的机制，任何人都能直接读取私有属性——这对调试和序列化倒是有用。此外，只要编写 v1._Vector__x = 7 这样的代码，就能轻松地为 Vector2d 实例的私有分量直接赋值。</p>
+<p>Python 解释器不会对使用单个下划线（如self._x)的属性名做特殊处理，不过这是很多 Python 程序员严格遵守的约定，他们不会在类外部访问这种属性。</p>
+<p>（注：像遵守使用全大写字母编写常量）</p>
+<p>Python 文档的某些角落把使用一个下划线前缀标记的属性称为“受保护的”属性。 使用self._x 这种形式保护属性的做法很常见，但是很少有人把这种属性叫作“受保护的”属性。有些人甚至将其称为“私有”属性。</p>
+<h1 id=5使用-__slots__-类属性节省空间>5.使用 __slots__ 类属性节省空间</h1>
+<p>默认情况下，Python 在各个实例中名为 <strong>dict</strong> 的字典里存储实例属性。为了使用底层的散列表提升访问速度，字典会消耗大量内存。如果要处理数百万个属性不多的实例，通过 __slots__ 类属性，能节省大量内存，方法是让解释器在元组中存储实例属性，而不用字典。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Vector2d</span>:
+    __slots__ <span style=color:#000;font-weight:700>=</span> (<span style=color:#d14>&#39;__x&#39;</span>, <span style=color:#d14>&#39;__y&#39;</span>)
+    typecode <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#39;d&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在类中定义 __slots__ 属性的目的是告诉解释器：“这个类中的所有实例属性都在这儿了！”这样，Python 会在各个实例中使用类似元组的结构存储实例变量，从而避免使用消耗内存的 __dict__ 属性。如果有数百万个实例同时活动，这样做能节省大量内存。</p>
+<p>如果要处理数百万个数值对象，应该使用 NumPy 数组（参见 2.9.3 节）。NumPy 数组能高效使用内存，而且提供了高度优化的数值处理函数，其中很多都一次操作整个数组。</p>
+<p>如果把 &lsquo;__dict__&rsquo; 这个名称添加到__slots__ 中，实例会在元组中保存各个实例的属性，此外还支持动态创建属性，这些属性存储在常规的 __dict__ 中。当然，把 &lsquo;__dict__&rsquo; 添加到 __slots__ 中可能完全违背了初衷，这取决于各个实例的静态属性和动态属性的数量及其用法。</p>
+<p>在类中定义 _<em>slots</em>_ 属性之后，实例不能再有 _<em>slots</em>_ 中所列名称之外的其他属性。这只是一个副作用，不是 __slots__ 存在的真正原因。不要使用__slots__ 属性禁止类的用户新增实例属性。</p>
+<p><strong>__slots__ 是用于优化的，不是为了约束程序员</strong></p>
+<p>为了让对象支持弱引用（参见 8.6 节），必须有这个属性。用户定义的类中默认就有 __weakref__ 属性。可是，如果类中定义了 __slots__ 属性，而且想把实例作为弱引用的目标，那么要把'__weakref__' 添加到 __slots__ 中</p>
+<p>如果使用得当，__slots__ 能显著节省内存，不过有几点要注意。</p>
+<ul>
+<li>每个子类都要定义 __slots__ 属性，因为解释器会忽略继承的 __slots__ 属性。</li>
+<li>实例只能拥有 __slots__ 中列出的属性，除非把 &lsquo;__slots__&rsquo; 加入 __slots__ 中（这样做就失去了节省内存的功效）。</li>
+<li>如果不把 &lsquo;__weakref__&rsquo; 加入 <strong>slots</strong>，实例就不能作为弱引用的目标。</li>
+</ul>
+</div>
+<div class=post-archive>
+<ul class=post-copyright>
+<li><strong>原文作者：</strong><a rel=author href=http://diudiu6.com>裘丢丢</a></li>
+<li style=word-break:break-all><strong>原文链接：</strong><a href=http://diudiu6.com/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/>http://diudiu6.com/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/</a></li>
+<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+</ul>
+</div>
+<br>
+<div class=post-archive>
+<h2>See Also</h2>
+<ul class=listing>
+<li><a href=/post/%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/>对象引用、可变性和垃圾回收</a></li>
+<li><a href=/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/>函数装饰器和闭包</a></li>
+<li><a href=/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/>一等函数</a></li>
+<li><a href=/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/>使用一等函数设计模式</a></li>
+<li><a href=/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/>文本和字节序列</a></li>
+</ul>
+</div>
+<div class="post-meta meta-tags">
+<ul class=clearfix>
+<li><a href=/tags/%E6%B5%81%E7%95%85%E7%9A%84python>流畅的python</a></li>
+<li><a href=/tags/learning>learning</a></li>
+</ul>
+</div>
+</article>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//yourdiscussshortname.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+<div class="post bg-white">
+<script src=https://utteranc.es/client.js repo="your github repo" issue-term=pathname theme=github-light crossorigin=anonymous async></script>
+</div>
+</div>
+<footer id=footer>
+<div>
+&copy; 2022 <a href=http://diudiu6.com>知其然，知其所以然 By 裘丢丢</a>
+</div>
+<br>
+<div>
+<div class=github-badge>
+<a href=https://gohugo.io/ target=_black rel=nofollow><span class=badge-subject>Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+</div>
+<div class=github-badge>
+<a href=https://www.flysnow.org/ target=_black><span class=badge-subject>Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+</div>
+<div class=github-badge>
+<a href=https://github.com/flysnow-org/maupassant-hugo target=_black><span class=badge-subject>Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+</div>
+</div>
+</footer>
+<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<a id=rocket href=#top></a>
+<script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','G-P4G4EG6P5G','auto'),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
+<script src=/js/douban.js></script>
+</div>
+<div id=secondary>
+<section class=widget>
+<form id=search action=http://diudiu6.com/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
+<input type=text name=q maxlength=20 placeholder=Search>
+<input type=hidden name=sitesearch value=http://diudiu6.com>
+<button type=submit class="submit icon-search"></button>
+</form>
+</section>
+<section class=widget>
+<h3 class=widget-title>最近文章</h3>
+<ul class=widget-list>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/ title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/ title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/ title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/ title="2. 两数相加">2. 两数相加</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/ title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/ title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/ title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/ title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1.-Two-Sum/ title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/ title=类继承>类继承</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/categories/>分类</a></h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/categories/C++/>C++ (1)</a></li>
+<li><a href=http://diudiu6.com/categories/C++-primer-plus/>C++ primer plus (1)</a></li>
+<li><a href=http://diudiu6.com/categories/CNN/>CNN (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Easy/>Easy (2)</a></li>
+<li><a href=http://diudiu6.com/categories/LeetCode/>LeetCode (9)</a></li>
+<li><a href=http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Medium/>Medium (5)</a></li>
+<li><a href=http://diudiu6.com/categories/Python/>Python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/TensorFlow/>TensorFlow (1)</a></li>
+<li><a href=http://diudiu6.com/categories/hash/>hash (1)</a></li>
+<li><a href=http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/>page 搭建 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/>使用技巧 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>广度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>深度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习 (2)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/>爬虫 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/>第七章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/>第三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/>第九章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/>第二章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/>第五章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/>第八章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/>第六章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/>第十三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/>第四章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E9%80%92%E5%BD%92/>递归 (1)</a></li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/tags/>标签</a></h3>
+<div class=tagcloud>
+<a href=http://diudiu6.com/tags/C++-primer-plus/>C++ primer plus</a>
+<a href=http://diudiu6.com/tags/CNN/>CNN</a>
+<a href=http://diudiu6.com/tags/LeetCode/>LeetCode</a>
+<a href=http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法</a>
+<a href=http://diudiu6.com/tags/TensorFlow/>TensorFlow</a>
+<a href=http://diudiu6.com/tags/Windows/>Windows</a>
+<a href=http://diudiu6.com/tags/hash/>hash</a>
+<a href=http://diudiu6.com/tags/learning/>learning</a>
+<a href=http://diudiu6.com/tags/xpath/>xpath</a>
+<a href=http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/>初等数学</a>
+<a href=http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/>回溯</a>
+<a href=http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/>广度优先搜索 BFS</a>
+<a href=http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/>深度优先搜索 DFS</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习</a>
+<a href=http://diudiu6.com/tags/%E9%80%92%E5%BD%92/>递归</a>
+</div>
+</section>
+<section class=widget>
+<h3 class=widget-title>友情链接</h3>
+<ul class=widget-list>
+<li>
+<a target=_blank href=https://www.flysnow.org/ title=飞雪无情的博客>飞雪无情的博客</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>其它</h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/index.xml>文章 RSS</a></li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

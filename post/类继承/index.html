@@ -1,0 +1,986 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=referrer content="no-referrer-when-downgrade">
+<title>类继承 | 知其然，知其所以然</title>
+<meta property="og:title" content="类继承 - 知其然，知其所以然">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2020-05-09T15:18:30+08:00">
+<meta property="article:modified_time" content="2020-05-09T15:18:30+08:00">
+<meta name=Keywords content="golang">
+<meta name=description content="类继承">
+<meta name=author content="裘丢丢">
+<meta property="og:url" content="http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/">
+<link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
+<link rel=stylesheet href=/css/normalize.css>
+<link rel=stylesheet href=/css/style.css>
+<script type=text/javascript src=//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js></script>
+<link rel=stylesheet href=/css/douban.css>
+<link rel=stylesheet href=/css/other.css>
+</head>
+<body>
+<header id=header class=clearfix>
+<div class=container>
+<div class=col-group>
+<div class=site-name>
+<a id=logo href=http://diudiu6.com>
+知其然，知其所以然
+</a>
+<p class=description>知识广度是深度的副产品</p>
+</div>
+<div>
+<nav id=nav-menu class=clearfix>
+<a class=current href=http://diudiu6.com>首页</a>
+<a href=http://diudiu6.com/tools/ title=工具>工具</a>
+<a href=http://diudiu6.com/archives/ title=归档>归档</a>
+<a href=http://diudiu6.com/about/ title=关于>关于</a>
+</nav>
+</div>
+</div>
+</div>
+</header>
+<div id=body>
+<div class=container>
+<div class=col-group>
+<div class=col-8 id=main>
+<div class=res-cons>
+<style type=text/css>.post-toc{position:fixed;width:200px;margin-left:-210px;padding:5px 10px;font-family:Athelas,STHeiti,Microsoft Yahei,serif;font-size:12px;border:1px solid rgba(0,0,0,7%);border-radius:5px;background-color:rgba(255,255,255,.98);background-clip:padding-box;-webkit-box-shadow:1px 1px 2px rgba(0,0,0,.125);box-shadow:1px 1px 2px rgba(0,0,0,.125);word-wrap:break-word;white-space:nowrap;-webkit-box-sizing:border-box;box-sizing:border-box;z-index:999;cursor:pointer;max-height:70%;overflow-y:auto;overflow-x:hidden}.post-toc .post-toc-title{width:100%;margin:0 auto;font-size:20px;font-weight:400;text-transform:uppercase;text-align:center}.post-toc .post-toc-content{font-size:15px}.post-toc .post-toc-content>nav>ul{margin:10px 0}.post-toc .post-toc-content ul{padding-left:20px;list-style:square;margin:.5em;line-height:1.8em}.post-toc .post-toc-content ul ul{padding-left:15px;display:none}@media print,screen and (max-width:1057px){.post-toc{display:none}}</style>
+<div class=post-toc style=position:absolute;top:188px>
+<h2 class=post-toc-title>文章目录</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#131-一个简单的基类>13.1 一个简单的基类</a>
+<ul>
+<li><a href=#1312构造函数访问权限的考虑>13.1.2构造函数：访问权限的考虑</a></li>
+<li><a href=#1313派生类和基类之间的特殊关系>13.1.3派生类和基类之间的特殊关系</a></li>
+</ul>
+</li>
+<li><a href=#132继承-is-a关系>13.2继承： is-a关系</a></li>
+<li><a href=#133多态公有继承>13.3多态公有继承</a>
+<ul>
+<li><a href=#1341指针和引用类型的兼容性>13.4.1指针和引用类型的兼容性</a></li>
+<li><a href=#1343有关虚函数注意事项>13.4.3有关虚函数注意事项</a></li>
+</ul>
+</li>
+<li><a href=#135访问控制-protected>13.5访问控制: protected</a></li>
+<li><a href=#136抽象基类不一定要虚函数-------------纯虚函数>13.6抽象基类（不一定要虚函数） 纯虚函数</a></li>
+<li><a href=#137-继承和动态内存分配>13.7 继承和动态内存分配</a>
+<ul>
+<li><a href=#复制构造函数>复制构造函数</a></li>
+<li><a href=#赋值运算符重载>赋值运算符重载</a></li>
+<li><a href=#友元>友元</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<script type=text/javascript>$(document).ready(function(){var a=$(".post-toc"),b,c,d;a.length&&(b=$("#main").offset().left,b<220&&a.css({width:b-10,"margin-left":0-b}),c=a.offset().top-20,d={start:{position:"absolute",top:c},process:{position:"fixed",top:20}},$(window).scroll(function(){var b=$(window).scrollTop();b<c?a.css(d.start):a.css(d.process)})),$("#TableOfContents").children().length<1&&$(".post-toc").remove()})</script>
+<article class=post>
+<header>
+<h1 class=post-title>类继承</h1>
+</header>
+<date class="post-meta meta-date">
+2020年5月9日
+</date>
+<div class=post-meta>
+<span>|</span>
+<span class=meta-category><a href=/categories/C++>C++</a></span>
+<span class=meta-category><a href=/categories/C++-primer-plus>C++ primer plus</a></span>
+<span class=meta-category><a href=/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0>第十三章</a></span>
+</div>
+<div class=post-meta>
+<span id=busuanzi_container_page_pv>|<span id=busuanzi_value_page_pv></span><span>
+阅读</span></span>
+</div>
+<div class=clear style=display:none>
+<div class=toc-article>
+<div class=toc-title>文章目录</div>
+</div>
+</div>
+<div class=post-content>
+<h1 id=类继承>类继承</h1>
+<ul>
+<li>本章内容包括：
+<ul>
+<li>is-a 关系的继承。</li>
+<li>如何以公有方式从一个类派生出另一个类。</li>
+<li>保护访问。</li>
+<li>构造函数成员初始化列表。</li>
+<li>向上和向下强制转换。</li>
+<li>虚成员函数。</li>
+<li>早期（静态）联编与晚期（动态）联编。</li>
+<li>抽象基类。</li>
+<li>纯虚函数。</li>
+<li>何时及如何使用公有继承。</li>
+</ul>
+</li>
+</ul>
+<p>类继承——它能够从已有的类派生出新的类，而派生类继承了原有类（称为基类）的特征，包括方法。</p>
+<ul>
+<li>可以在原有类的基础上添加功能。例如，对于数组类，可以添加数学运算。</li>
+<li>可以给类添加数据。例如，对于字符串类可以派生出一个类，并添加指定字符串显示颜色的数据成员。</li>
+<li>可以修改类方法的行为。例如，对于代表提供给飞机乘客的服务的passenger类，可以派生出提供给头等舱服务的FirstPassenger类。</li>
+</ul>
+<h2 id=131-一个简单的基类>13.1 一个简单的基类</h2>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>TableTennisPlayer</span>
+{
+<span style=color:#000;font-weight:700>private</span><span style=color:#000;font-weight:700>:</span>
+    string firstname;
+    string lastname;
+    <span style=color:#458;font-weight:700>bool</span> hasTable;
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    TableTennisPlayer (<span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> fn <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;none&#34;</span>,
+                       <span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> ln <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;none&#34;</span>, <span style=color:#458;font-weight:700>bool</span> ht <span style=color:#000;font-weight:700>=</span> <span style=color:#0086b3>false</span>);
+};
+<span style=color:#998;font-style:italic>/*
+</span><span style=color:#998;font-style:italic>这将首先为firstname调用string的默认构造函数，再调用string的赋值运算符将firstname设置为fn
+</span><span style=color:#998;font-style:italic>*/</span>
+TableTennisPlayer<span style=color:#000;font-weight:700>::</span>TableTennisPlayer (<span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> fn, 
+    <span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> ln, <span style=color:#458;font-weight:700>bool</span> ht) {
+            firstname <span style=color:#000;font-weight:700>=</span> fn;
+            lastname <span style=color:#000;font-weight:700>=</span> ln;
+            hasTable <span style=color:#000;font-weight:700>=</span> ht;
+        }
+<span style=color:#998;font-style:italic>/*初始化列表语法
+</span><span style=color:#998;font-style:italic>初始化列表语法可减少一个步骤，它直接使用string的复制构造函数将firstname 初始化为fn
+</span><span style=color:#998;font-style:italic>TableTennisPlayer::TableTennisPlayer (const string &amp; fn, 
+</span><span style=color:#998;font-style:italic>    const string &amp; ln, bool ht) : firstname(fn),
+</span><span style=color:#998;font-style:italic>	    lastname(ln), hasTable(ht) {}
+</span><span style=color:#998;font-style:italic>*/</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>给一个类派生出另一个类时，原始类称为基类，继承类成为派生类。</p>
+<ul>
+<li>
+<p>公有派生(public)</p>
+<p>派生类对象包含基类对象。使用公有派生，基类的公有成员将成为派生类的公有成员；基类的私有部分(private)也将成为派生类的一部分，但只能通过基类的公有和保护方法访问</p>
+<ul>
+<li>派生类对象<strong>存储了基类的数据成员</strong>（派生类继承了积累的实现）</li>
+<li>派生类对象<strong>可以使用基类的方法</strong>（派生类继承了基类的接口）</li>
+<li>派生类<strong>需要自己的构造函数</strong>。</li>
+<li>派生类可以<strong>根据需要添加额外的数据成员和成员函数</strong>。</li>
+<li>构造函数必须<strong>给新成员(如果有的话)和继承的成员提供数据</strong>。</li>
+</ul>
+</li>
+</ul>
+<h3 id=1312构造函数访问权限的考虑>13.1.2构造函数：访问权限的考虑</h3>
+<ul>
+<li>
+<p><strong>派生类不能直接访问基类的私有成员，而必须通过基类方法进行访问。</strong>
+派生类不能直接设置继承的成员，而必须使用基类的公有方法来访问私有的基类成员。具体地说，派生类构造函数必须使用基类构造函数。</p>
+</li>
+<li>
+<p><strong>创建派生类对象时，程序首先创建基类对象。</strong></p>
+<p>从概念上说，这意味着基类对象应当在程序进入派生类构造函数之前被创建。<strong>C+ +使用成员初始化列表语法来完成这种工作。</strong></p>
+</li>
+<li>
+<p><strong>非构造函数不能使用成员初始化列表语法，但派生类方法可以调用公有的基类方法</strong></p>
+<p>例如，派生类构造函数在初始化基类私有数据时，采用的是成员初始化列表语法</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#998;font-style:italic>// RatedPlayer 继承于 TableTennisPlayer
+</span><span style=color:#998;font-style:italic>// class RatedPlayer : public TableTennisPlayer
+</span><span style=color:#998;font-style:italic></span><span style=color:#900;font-weight:700>RatedPlayer</span>: <span style=color:#000;font-weight:700>:</span> RatedPlayer (<span style=color:#458;font-weight:700>unsigned</span> <span style=color:#458;font-weight:700>int</span> r, <span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> fn, <span style=color:#000;font-weight:700>const</span> string <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#099>1</span>n, <span style=color:#458;font-weight:700>bool</span> ht) <span style=color:#000;font-weight:700>:</span> TableTennisPlayer(fn<span style=color:#a61717;background-color:#e3d2d2>，</span> <span style=color:#099>1</span>n, ht)
+{
+	rating <span style=color:#000;font-weight:700>=</span> r;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>如果省略成员初始化列表（不调用基类构造函数），程序将使用默认的基类构造函数</p>
+</li>
+<li>
+<p>有关派生类构造函数的要点如下:</p>
+<ul>
+<li>首<strong>先创建基类对象</strong></li>
+<li>派生类构造函数应通过成员初始化列表将基类信息传递给基类构造函数，<strong>根据继承顺序初始化，而不是初始化列表中的顺序</strong></li>
+<li>派生类构造函数应初始化派生类新增的数据成员。<strong>根据声明顺序初始化，而不是初始化列表中的顺序</strong></li>
+<li><strong>释放对象的顺序与创建对象的顺序相反</strong>，首先执行派生类的析构函数，然后自动调用基类的析构函数。</li>
+</ul>
+</li>
+<li>
+<p>派生类并不能直接访问基类的私有数据，必须使用基类的公有方法才能访问这些数据</p>
+<p>再次总结</p>
+</li>
+</ul>
+<ol>
+<li>
+<p><strong>创建派生类对象时，程序首先调用基类构造函数</strong></p>
+<p>基类构造函数负责初始化继承的数据成员</p>
+</li>
+<li>
+<p><strong>然后再调用派生类构造函数。</strong></p>
+<p>派生类构造函数主要用于初始化新增的数据成员。</p>
+</li>
+<li>
+<p><strong>派生类的构造函数总是调用一个基类构造函数。</strong></p>
+<p>可以使用初始化器列表语法指明要使用的基类构造函数，否则将使用默认的基类构
+造函数。</p>
+</li>
+<li>
+<p><strong>派生类对象过期时，程序将首先调用派生类析构函数，然后再调用基类析构函数。</strong></p>
+</li>
+</ol>
+<ul>
+<li>虛基类外(参见第14章)，类只能将值传递回相邻的基类，但后者可以使用相同的机制将信息传递给相邻的基类，依此类推。如果没有在成员初始化列表中提供基类构造函数，程序将使用默认的基类构造函数。成员初始化列表只能用于构造函数。</li>
+</ul>
+<h3 id=1313派生类和基类之间的特殊关系>13.1.3派生类和基类之间的特殊关系</h3>
+<ul>
+<li>派生类对象可以使用基类的方法，条件是不是私有的</li>
+<li>基类指针可以在不进行显式类型转换的情况下指向派生类对象</li>
+<li>基类引用可以在不进行显示类型转换的情况下引用派生类对象</li>
+<li>基类指针或引用只能用于调用基类方法，因此,不能来调用派生类的方法。</li>
+<li>不可以将基类对象和地址赋给派生类引用和指针</li>
+</ul>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-C++ data-lang=C++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>A</span>{};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>B</span><span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>public</span> A{};
+B <span style=color:#900;font-weight:700>temp_1</span>(<span style=color:#099>1</span>,<span style=color:#099>2</span>,<span style=color:#099>3</span>);
+A <span style=color:#900;font-weight:700>temp_2</span>(temp_1);
+<span style=color:#998;font-style:italic>/*
+</span><span style=color:#998;font-style:italic>要初始化temp_2,匹配的构造函数的原型如下:
+</span><span style=color:#998;font-style:italic>A (const B&amp;);
+</span><span style=color:#998;font-style:italic>类定义中没有这样的构造函数，但存在隐式复制构造函数
+</span><span style=color:#998;font-style:italic>A(const A&amp;);
+</span><span style=color:#998;font-style:italic>形参是基类引用，因此他可以引用派生类
+</span><span style=color:#998;font-style:italic>*/</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=132继承-is-a关系>13.2继承： is-a关系</h2>
+<p>公有继承</p>
+<h2 id=133多态公有继承>13.3多态公有继承</h2>
+<p>实现多态公有继承方法</p>
+<ul>
+<li>在派生类中重新定义基类的方法</li>
+<li>使用虚方法virtual</li>
+</ul>
+<p>如果方法是通过引用或指针而不是对象调用的，它将确定使用哪一种方法。</p>
+<ul>
+<li>
+<p>如果没有使用关键字virtual,程序将<strong>根据引用类型或指针类型</strong>选择方法</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>A</span>{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#458;font-weight:700>void</span> print();
+};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>B</span><span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>public</span> A{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#458;font-weight:700>void</span> print();
+};
+A <span style=color:#900;font-weight:700>temp_1</span>();
+B <span style=color:#900;font-weight:700>temp_2</span>();
+
+A<span style=color:#000;font-weight:700>*</span> P_1 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>&amp;</span> temp_1;
+P_1 <span style=color:#000;font-weight:700>-&gt;</span> print(); <span style=color:#998;font-style:italic>// 调用 A::print()
+</span><span style=color:#998;font-style:italic></span>A<span style=color:#000;font-weight:700>*</span> P_2 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>&amp;</span> temp_2;
+P_2 <span style=color:#000;font-weight:700>-&gt;</span> print(); <span style=color:#998;font-style:italic>// 调用 A::print()
+</span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>如果使用了virtual,程序将<strong>根据引用或指针指向的对象的类型</strong>来选择方法。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>A</span>{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#000;font-weight:700>virtual</span> <span style=color:#458;font-weight:700>void</span> print();
+};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>B</span><span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>public</span> A{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#000;font-weight:700>virtual</span> <span style=color:#458;font-weight:700>void</span> print();
+};
+A <span style=color:#900;font-weight:700>temp_1</span>();
+B <span style=color:#900;font-weight:700>temp_2</span>();
+
+A<span style=color:#000;font-weight:700>*</span> P_1 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>&amp;</span> temp_1;
+P_1 <span style=color:#000;font-weight:700>-&gt;</span> print(); <span style=color:#998;font-style:italic>// 调用 A::print()
+</span><span style=color:#998;font-style:italic></span>A<span style=color:#000;font-weight:700>*</span> P_2 <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>&amp;</span> temp_2;
+P_2 <span style=color:#000;font-weight:700>-&gt;</span> print(); <span style=color:#998;font-style:italic>// 调用 B::print()
+</span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p><strong>方法在基类中被声明为虚的后，它在派生类中将自动成为虚方法</strong>。然而，在派生类声明中使用关
+键字virual来指出哪此函数县虎函数也不失为一个好办法。（<strong>派生类不一定要加virtual，基类一定要；virtual只需要在原型中写出，但定义中不需要写，和friend一样</strong>）</p>
+<p><strong>只要派生类的函数与基类的同原型（函数返回类型、函数名和形参列表），自动转为虚函数，不需要声明virtual，如果不同的话就叫作函数重载了；虚函数只能是类中成员函数且不能是静态，有隐藏的this指针</strong></p>
+<ul>
+<li><strong>基类声明虚析构函数。这样做是为了确保释放派生对象时，按正确的顺序调用析构函数。</strong>
+<ul>
+<li>使用delete释放由new分配的对象时，<strong>如果析构函数不是虚的，则将只调用对应于指针类型的析构函数。如果析构函数是虚的，将调用相应对象类型的析构函数</strong>。因此，<strong>如果基类指针指向的是派生类对象，将调用派生类 的析构函数，然后自动调用基类的析构函数</strong>。因此，<strong>使用虚析构函数可以确保正确的析构函数序列被调用</strong></li>
+</ul>
+</li>
+<li>注意:如果要在派生类中重新定义基类的方法，通常应将基类方法声明为虚的。这样，程序将根据对象类型而不是引用或指针的类型来选择方法版本。为基类声明一个虚析构函数也是一种惯例。</li>
+</ul>
+<h3 id=1341指针和引用类型的兼容性>13.4.1指针和引用类型的兼容性</h3>
+<ul>
+<li>
+<p>在C++中，动态联编与通过指针和引用调用方法相关，从某种程度上说，这是由继承控制的。</p>
+</li>
+<li>
+<p>将派生类引用或指针转换为基类引用或指针被称为向上强制转换(upcasting),这使公有继承不需要进行显式类型转换。该规则是is-a 关系的一部分。 BrassPlus 对象都是Brass对象，因为它继承了Brass对象</p>
+</li>
+<li>
+<p>相反的过程——将 基类指针或引用转换为派生类指针或引用——称 为向下强制转换。如果不使用显式类型转换，则向下强制转换是不允许的。原因是is-a 关系通常是不可逆的。派生类可以新</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Employee</span>
+{
+<span style=color:#000;font-weight:700>private</span><span style=color:#000;font-weight:700>:</span>
+	<span style=color:#458;font-weight:700>char</span> nane[<span style=color:#099>401</span>;
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+	<span style=color:#458;font-weight:700>void</span> show nane();
+};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Singer</span> <span style=color:#000;font-weight:700>:</span> <span style=color:#000;font-weight:700>public</span> Employee{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+	<span style=color:#458;font-weight:700>void</span> range();
+};
+Employee veep;
+Singer trala;
+Employee pe<span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>&amp;</span>trala; <span style=color:#998;font-style:italic>// 允许向上隐式类型转换
+</span><span style=color:#998;font-style:italic></span>Singer<span style=color:#000;font-weight:700>*</span> ps <span style=color:#000;font-weight:700>=</span> (Singer <span style=color:#000;font-weight:700>*</span>) <span style=color:#000;font-weight:700>&amp;</span>veep; <span style=color:#998;font-style:italic>// 必须向下显式类型转换
+</span><span style=color:#998;font-style:italic></span>pe<span style=color:#000;font-weight:700>-&gt;</span>show nane(); <span style=color:#998;font-style:italic>// 向上转换带来安全操作，因为Singer是Employee(每个singer都继承姓名)
+</span><span style=color:#998;font-style:italic></span>ps<span style=color:#000;font-weight:700>-&gt;</span>range(); <span style=color:#998;font-style:italic>//向下转换可能带来不安全的操作，因为Employee并不是Singer(Eaployee没有有range()方法)
+</span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>如果要在派生类中重新定义基类的方法，则将它设置为虚方法;否则，设置为非虚方法。</p>
+</li>
+</ul>
+<h3 id=1343有关虚函数注意事项>13.4.3有关虚函数注意事项</h3>
+<h4 id=1--构造函数>1. 构造函数</h4>
+<p>**构造函数不能是虚函数。**创建派生类对象时，将调用派生类的构造函数，而不是基类的构造函数，然后，派生类的构造函数将使用基类的一个构造函数，这种顺序不同于继承机制。因此，派生类不继承基类的构造函数，所以将类构造函数声明为虚的没什么意义。</p>
+<h4 id=2--析构函数>2. 析构函数</h4>
+<p>**析构函数应当是虚函数，除非类不用做基类。**例如，假设Employee是基类，Singer 是派生类,并添加一个char *成员，该成员指向由new分配的内存。当Singer对象过期时，必须调用~Singer( )析构函数来释放内存。</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-C++ data-lang=C++>Employee <span style=color:#000;font-weight:700>*</span> pe <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>new</span> Singer; 
+<span style=color:#000;font-weight:700>delete</span> pe;
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>如果使用默认的静态联编，delete 语句将调用~Employee( )析构函数。这将释放由Singer 对象中的Employee部分指向的内存，但不会释放新的类成员指向的内存。</p>
+</li>
+<li>
+<p>如果析构函数是虚的，则上述代码将先调用~Singer析构函数释放由Singer组件指向的内存,然后,调用~Employee()析构函数来释放由Employee组件指向的内存。
+这意味着，即使基类不需要显式析构函数提供服务，也不应依赖于默认析构函数，而应提供虚析构函数，即使它不执行任何操作: virtual ~BaseClass() { }</p>
+</li>
+<li>
+<p>给类定义一个虚析构函数并非错误，即使这个类不用做基类:这只是一个效率方面的问题。
+通常应给基类提供一个虚析构函数，即使它并不需要析构函数。</p>
+</li>
+</ul>
+<h4 id=3---友元>3. 友元</h4>
+<p>友元不能是虚函数，因为友元不是类成员，而只有成员才能是虚函数。可以通过让友元函数使用虚成员函数来解决。</p>
+<h4 id=4--没有重新定义>4. 没有重新定义</h4>
+<p>如果派生类没有重新定义函数，将使用该函数的基类版本。如果派生类位于派生链中，则将使用最新的虚函数版本，例外的情况是基类版本是隐藏的。</p>
+<h4 id=5--重新定义将隐藏方法>5. 重新定义将隐藏方法</h4>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Dwelling</span>{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+   <span style=color:#000;font-weight:700>virtual</span> <span style=color:#458;font-weight:700>void</span> showperks(<span style=color:#458;font-weight:700>int</span> a) <span style=color:#000;font-weight:700>const</span>;
+};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>Hovel</span> <span style=color:#000;font-weight:700>:</span> <span style=color:#000;font-weight:700>public</span> Dweling{
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+   <span style=color:#000;font-weight:700>virtual</span> <span style=color:#458;font-weight:700>void</span> showperks() <span style=color:#000;font-weight:700>const</span>;
+};
+Hovel trump;
+trump.showperks() ;<span style=color:#998;font-style:italic>// valid
+</span><span style=color:#998;font-style:italic></span>trump.showperks(<span style=color:#099>5</span>) ;<span style=color:#998;font-style:italic>// invalid
+</span><span style=color:#998;font-style:italic></span>trump.Dwelling<span style=color:#000;font-weight:700>::</span>showperks(<span style=color:#099>5</span>) ;<span style=color:#998;font-style:italic>// valid
+</span><span style=color:#998;font-style:italic></span>
+<span style=color:#998;font-style:italic>/*
+</span><span style=color:#998;font-style:italic>新定义将showperks( )定义为一个不接受任何参数的函数。重新定义不会生成函数的两个重载版本，而是隐藏了接受一个int参数的基类版本。
+</span><span style=color:#998;font-style:italic>*/</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<ul>
+<li>重新定义继承的方法并不是重载。如果在派生类中重新定义函数，将不是使用相同的函数特征标覆盖基类声明，而是隐藏同名的基类方法，不管参数特征标如何。</li>
+<li>如果派生类的函数与基类的函数同名，但是参数不同。此时，无论有无virtual关键字，积累的函数将被隐藏（注意别与重载混淆）。</li>
+<li>如果派生类的函数与积累的函数同名，并且参数也相同，但是基类函数没有virtual关键字。此时，基类的函数被隐藏（注意别与覆盖混淆）。</li>
+</ul>
+</blockquote>
+<p>这引出了两条经验规则:</p>
+<ul>
+<li>第一,如果重新定义继承的方法，应确保与原来的原型完全相同，但如果返回类型是基类引用或指针，则可以修改为指向派生类的引用或指针(这种例外是新出现的)。这种特性被称为返回类型协变(covariance of return type)，因为允许返回类型随类类型的变化而变化</li>
+</ul>
+<p>这种例外只适用于返回值，而不适用于参数。</p>
+<ul>
+<li>第二，如果基类声明被重载了，则应在派生类中重新定义所有的基类版本。</li>
+</ul>
+<p>如果只重新定义一个版本，则另外两个版本将被隐藏，派生类对象将无法使用它们。注意，如果不需要修改，则新定义可只调用基类版本</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#458;font-weight:700>void</span> <span style=color:#900;font-weight:700>Hovel</span>: <span style=color:#000;font-weight:700>:</span> showperks() <span style=color:#000;font-weight:700>const</span> {Dwelling<span style=color:#000;font-weight:700>::</span>showperks() ;}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=135访问控制-protected>13.5访问控制: protected</h2>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>test</span>{
+<span style=color:#000;font-weight:700>protected</span><span style=color:#000;font-weight:700>:</span>
+	<span style=color:#458;font-weight:700>int</span> n;
+	<span style=color:#458;font-weight:700>int</span> <span style=color:#900;font-weight:700>get_n</span>(){}
+}
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>关键字protected 与private 相似，在类外只能用公有类成员来访问protected部分中的类成员。</p>
+</li>
+<li>
+<p>private 和protected之间的区别只有在基类派生的类中才会表现出来。</p>
+</li>
+<li>
+<p>派生类的成员可以直接访问基类的保护成员，但不能直接访问基类的私有成员。</p>
+<ul>
+<li>
+<p>对于<strong>外部</strong>世界来说, 保护成员的行为 ≈ 私有成员的行为</p>
+</li>
+<li>
+<p>对于<strong>派生类</strong>来说， 保护成员的行为 ≈ 公有成员的行为</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>最好对类数据成员采用私有访问控制，不要使用保护访问控制</p>
+<p>同时通过基类方法使派生类能够访问基类数据。
+然而，对于成员函数来说，保护访问控制很有用，它让派生类能够访问公众不能使用的内部函数。</p>
+<h2 id=136抽象基类不一定要虚函数-------------纯虚函数>13.6抽象基类（不一定要虚函数） 纯虚函数</h2>
+<p>C+ +通过使用纯虚函数(pure vitual function)提供未实现的函数。纯虚函数声明的结尾处为=0</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>BaseEllipse</span>{
+<span style=color:#000;font-weight:700>private</span> <span style=color:#000;font-weight:700>:</span>
+    <span style=color:#458;font-weight:700>double</span> x;
+    <span style=color:#458;font-weight:700>double</span> y; 
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    BaseEllipse(<span style=color:#458;font-weight:700>double</span> x0 <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>, <span style=color:#458;font-weight:700>double</span> y0 <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>) <span style=color:#000;font-weight:700>:</span> x(x0) ,y(y0) {}
+    <span style=color:#000;font-weight:700>virtual</span> <span style=color:#000;font-weight:700>~</span>BaseEllipse() {}
+    <span style=color:#458;font-weight:700>void</span> <span style=color:#900;font-weight:700>Move</span>(<span style=color:#458;font-weight:700>int</span> nx, ny) { X<span style=color:#000;font-weight:700>=</span> nx; y<span style=color:#000;font-weight:700>=</span> ny; }
+    <span style=color:#000;font-weight:700>virtual</span> <span style=color:#458;font-weight:700>double</span> <span style=color:#900;font-weight:700>Area</span>() <span style=color:#000;font-weight:700>const</span> <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>; 
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>当类声明中包含纯虚函数时，则不能创建该类的对象。包含纯虚函数的类只用作基类。</strong></p>
+<p>**要成为真正的ABC（抽象基类）,必须至少包含一个纯虚函数。**即原型中的=0使虚函数成为纯虚函数，比如这里的方法Area()没有定义。</p>
+<p><strong>C++甚至允许纯虚函数有定义</strong>。例如，也许所有的基类方法都与Move()一样，可以在基类中进行定义，但您仍需要将这个类声明为抽象的。在这种情况下，可以将原型声明为虚的:</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#458;font-weight:700>void</span> <span style=color:#900;font-weight:700>Move</span>(<span style=color:#458;font-weight:700>int</span> nx<span style=color:#a61717;background-color:#e3d2d2>，</span>ny) <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>;
+</code></pre></td></tr></table>
+</div>
+</div><p>这将使基类成为抽象的，但您仍可以在实现文件中提供方法的定义:</p>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#458;font-weight:700>void</span> <span style=color:#900;font-weight:700>BaseEllipse</span>: <span style=color:#000;font-weight:700>:</span>Move(<span style=color:#458;font-weight:700>int</span> nx<span style=color:#a61717;background-color:#e3d2d2>，</span>ny) { x <span style=color:#000;font-weight:700>=</span> nx;y<span style=color:#000;font-weight:700>=</span> ny; }
+</code></pre></td></tr></table>
+</div>
+</div><p>总之，<strong>在原型中使用=0指出类是一个抽象基类，在类中可以不定义该函数。</strong></p>
+<h2 id=137-继承和动态内存分配>13.7 继承和动态内存分配</h2>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>baseDMA</span>
+{
+<span style=color:#000;font-weight:700>private</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> label;
+    <span style=color:#458;font-weight:700>int</span> rating;
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    baseDMA(<span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> l <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;null&#34;</span>, <span style=color:#458;font-weight:700>int</span> r <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>);
+    baseDMA(<span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+    <span style=color:#000;font-weight:700>virtual</span> <span style=color:#000;font-weight:700>~</span>baseDMA();
+    baseDMA <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>=</span>(<span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+    <span style=color:#000;font-weight:700>friend</span> std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>&lt;&lt;</span>(std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> os, <span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+};
+<span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>lacksDMA</span> <span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>public</span> baseDMA
+{
+<span style=color:#000;font-weight:700>private</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#000;font-weight:700>enum</span> { COL_LEN <span style=color:#000;font-weight:700>=</span> <span style=color:#099>40</span>};
+    <span style=color:#458;font-weight:700>char</span> color[COL_LEN];
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    lacksDMA(<span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> c <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;blank&#34;</span>, <span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> l <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;null&#34;</span>, <span style=color:#458;font-weight:700>int</span> r <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>);
+    lacksDMA(<span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> c, <span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+    <span style=color:#000;font-weight:700>friend</span> std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>&lt;&lt;</span>(std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> os, <span style=color:#000;font-weight:700>const</span> lacksDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+};
+
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>**复制类成员或继承的类组件时，则是使用该类的复制构造函数完成的。**所以，lacksDMA类的默认复制构造函数将使用显式baseDMA复制构造函数baseDMA (const baseDMA & rs)来复制lacksDMA对象的baseDMA部分。</p>
+</li>
+<li>
+<p>对于赋值来说，也是如此。<strong>类的默认赋值运算符将自动使用基类的赋值运算符baseDMA & operator= (const baseDMA & rs) 来对基类组件进行赋值。</strong></p>
+</li>
+<li>
+<p>**类的默认析构函数会将自动使用基类的析构函数~baseDMA()来对类成员或继承的类组件析构。**故其自身的职责是对派生类构造函数执行工作的部分进行清理。</p>
+</li>
+</ul>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#000;font-weight:700>class</span> <span style=color:#458;font-weight:700>hasDMA</span> <span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>public</span> baseDMA
+{
+<span style=color:#000;font-weight:700>private</span><span style=color:#000;font-weight:700>:</span>
+    <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> style;
+<span style=color:#000;font-weight:700>public</span><span style=color:#000;font-weight:700>:</span>
+    hasDMA(<span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> s <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;none&#34;</span>, <span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> l <span style=color:#000;font-weight:700>=</span> <span style=color:#d14>&#34;null&#34;</span>,
+              <span style=color:#458;font-weight:700>int</span> r <span style=color:#000;font-weight:700>=</span> <span style=color:#099>0</span>);
+    hasDMA(<span style=color:#000;font-weight:700>const</span> <span style=color:#458;font-weight:700>char</span> <span style=color:#000;font-weight:700>*</span> s, <span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+    hasDMA(<span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> hs);
+    <span style=color:#000;font-weight:700>~</span>hasDMA();
+    hasDMA <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>=</span>(<span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> rs);  
+    <span style=color:#000;font-weight:700>friend</span> std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>&lt;&lt;</span>(std<span style=color:#000;font-weight:700>::</span>ostream <span style=color:#000;font-weight:700>&amp;</span> os, 
+                                     <span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> rs);
+};
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=复制构造函数>复制构造函数</h3>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#998;font-style:italic>/*
+</span><span style=color:#998;font-style:italic>hasDMA复制构造函数只能访问hasDMA的数据，因此它必须调用baseDMA复制构造函数来处理共享的baseDMA数据:
+</span><span style=color:#998;font-style:italic>*/</span>
+<span style=color:#900;font-weight:700>hasDMA</span>: <span style=color:#000;font-weight:700>:</span> hasDMA (<span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> hs) <span style=color:#000;font-weight:700>:</span> baseDMA (hs){
+style <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>new</span> <span style=color:#458;font-weight:700>char</span> [<span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>strlen (hs.style) <span style=color:#000;font-weight:700>+</span> <span style=color:#099>1</span>];
+<span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>strcpy(style<span style=color:#a61717;background-color:#e3d2d2>，</span>hs.style) ;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>需要注意的一点是， <strong>成员初始化列表将一个hasDMA引用传递给baseDMA构造函数</strong>。</p>
+<p>没有参数类型为hasDMA引用的baseDMA构造函数，也不需要这样的构造函数。</p>
+<p>因为<strong>复制构造函数baseDMA有一个baseDMA引用参数，而基类引用可以指向派生类型。</strong></p>
+<p>因此，baseDMA 复制构造函数<strong>将使用 const hasDMA & hs参数的baseDMA部分来构造新对象的baseDMA部分。</strong></p>
+<h3 id=赋值运算符重载>赋值运算符重载</h3>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++>hasDMA <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#900;font-weight:700>hasDMA</span>: <span style=color:#000;font-weight:700>:</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>=</span> (<span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> hs)
+{
+    <span style=color:#000;font-weight:700>if</span> (<span style=color:#000;font-weight:700>this</span> <span style=color:#000;font-weight:700>==</span> <span style=color:#000;font-weight:700>&amp;</span>hs}
+    	<span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>*</span><span style=color:#000;font-weight:700>this</span>;
+    <span style=color:#900;font-weight:700>baseDMA</span>: <span style=color:#000;font-weight:700>:</span><span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>=</span>(hs); <span style=color:#998;font-style:italic>// 通过使用函数表示法，而不是运算符表示法，可以使用作用域解析运算法
+</span><span style=color:#998;font-style:italic></span>    <span style=color:#000;font-weight:700>delete</span> [] style;
+    style <span style=color:#000;font-weight:700>=</span> <span style=color:#000;font-weight:700>new</span> <span style=color:#458;font-weight:700>char</span> [<span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>strlen(hs.sty1e) <span style=color:#000;font-weight:700>+</span> <span style=color:#099>1</span>] ;
+    <span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>strcpy (style<span style=color:#a61717;background-color:#e3d2d2>，</span>hs.style) ;
+    <span style=color:#000;font-weight:700>return</span> <span style=color:#000;font-weight:700>this</span>;
+}
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=友元>友元</h3>
+<div class=highlight><div style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4>
+<table style=border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block><tr><td style=vertical-align:top;padding:0;margin:0;border:0>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style=vertical-align:top;padding:0;margin:0;border:0;width:100%>
+<pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c++ data-lang=c++><span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>ostream <span style=color:#000;font-weight:700>&amp;</span> <span style=color:#000;font-weight:700>operator</span><span style=color:#000;font-weight:700>&lt;&lt;</span> (<span style=color:#900;font-weight:700>std</span>: <span style=color:#000;font-weight:700>:</span>ostream <span style=color:#000;font-weight:700>&amp;</span> os<span style=color:#a61717;background-color:#e3d2d2>，</span><span style=color:#000;font-weight:700>const</span> hasDMA <span style=color:#000;font-weight:700>&amp;</span> hs){
+    os <span style=color:#000;font-weight:700>&lt;&lt;</span> (<span style=color:#000;font-weight:700>const</span> baseDMA <span style=color:#000;font-weight:700>&amp;</span>) hs;
+    os <span style=color:#000;font-weight:700>&lt;&lt;</span> <span style=color:#d14>&#34;Style: ”&lt;&lt; hs.style &lt;&lt; endl;</span>
+    <span style=color:#000;font-weight:700>return</span> os;
+}
+</code></pre></td></tr></table>
+</div>
+</div>
+</div>
+<div class=post-archive>
+<ul class=post-copyright>
+<li><strong>原文作者：</strong><a rel=author href=http://diudiu6.com>裘丢丢</a></li>
+<li style=word-break:break-all><strong>原文链接：</strong><a href=http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/>http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/</a></li>
+<li><strong>版权声明：</strong>本作品采用<a rel=license href=https://creativecommons.org/licenses/by-nc-nd/4.0/>知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+</ul>
+</div>
+<br>
+<div class=post-archive>
+<h2>See Also</h2>
+<ul class=listing>
+<li><a href=/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/>符合python风格的对象</a></li>
+<li><a href=/post/%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/>对象引用、可变性和垃圾回收</a></li>
+<li><a href=/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/>函数装饰器和闭包</a></li>
+<li><a href=/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/>一等函数</a></li>
+<li><a href=/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/>使用一等函数设计模式</a></li>
+</ul>
+</div>
+<div class="post-meta meta-tags">
+<ul class=clearfix>
+<li><a href=/tags/C++-primer-plus>C++ primer plus</a></li>
+<li><a href=/tags/learning>learning</a></li>
+</ul>
+</div>
+</article>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//yourdiscussshortname.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+<div class="post bg-white">
+<script src=https://utteranc.es/client.js repo="your github repo" issue-term=pathname theme=github-light crossorigin=anonymous async></script>
+</div>
+</div>
+<footer id=footer>
+<div>
+&copy; 2022 <a href=http://diudiu6.com>知其然，知其所以然 By 裘丢丢</a>
+</div>
+<br>
+<div>
+<div class=github-badge>
+<a href=https://gohugo.io/ target=_black rel=nofollow><span class=badge-subject>Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+</div>
+<div class=github-badge>
+<a href=https://www.flysnow.org/ target=_black><span class=badge-subject>Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+</div>
+<div class=github-badge>
+<a href=https://github.com/flysnow-org/maupassant-hugo target=_black><span class=badge-subject>Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+</div>
+</div>
+</footer>
+<script type=text/javascript>window.MathJax={tex2jax:{inlineMath:[['$','$']],processEscapes:!0}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<a id=rocket href=#top></a>
+<script type=text/javascript src="/js/totop.js?v=0.0.0" async></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','G-P4G4EG6P5G','auto'),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+<script type=text/javascript src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js async></script>
+<script src=/js/douban.js></script>
+</div>
+<div id=secondary>
+<section class=widget>
+<form id=search action=http://diudiu6.com/search/ method=get accept-charset=utf-8 target=_blank _lpchecked=1>
+<input type=text name=q maxlength=20 placeholder=Search>
+<input type=hidden name=sitesearch value=http://diudiu6.com>
+<button type=submit class="submit icon-search"></button>
+</form>
+</section>
+<section class=widget>
+<h3 class=widget-title>最近文章</h3>
+<ul class=widget-list>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/ title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/ title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/ title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/ title="2. 两数相加">2. 两数相加</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/ title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/ title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/ title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/ title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/1.-Two-Sum/ title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+</li>
+<li>
+<a href=http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/ title=类继承>类继承</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/categories/>分类</a></h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/categories/C++/>C++ (1)</a></li>
+<li><a href=http://diudiu6.com/categories/C++-primer-plus/>C++ primer plus (1)</a></li>
+<li><a href=http://diudiu6.com/categories/CNN/>CNN (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Easy/>Easy (2)</a></li>
+<li><a href=http://diudiu6.com/categories/LeetCode/>LeetCode (9)</a></li>
+<li><a href=http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/Medium/>Medium (5)</a></li>
+<li><a href=http://diudiu6.com/categories/Python/>Python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/TensorFlow/>TensorFlow (1)</a></li>
+<li><a href=http://diudiu6.com/categories/hash/>hash (1)</a></li>
+<li><a href=http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/>page 搭建 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/>使用技巧 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>广度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python (8)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/>深度优先搜索 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习 (2)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/>爬虫 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/>第七章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/>第三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/>第九章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/>第二章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/>第五章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/>第八章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/>第六章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/>第十三章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/>第四章 (1)</a></li>
+<li><a href=http://diudiu6.com/categories/%E9%80%92%E5%BD%92/>递归 (1)</a></li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title><a href=/tags/>标签</a></h3>
+<div class=tagcloud>
+<a href=http://diudiu6.com/tags/C++-primer-plus/>C++ primer plus</a>
+<a href=http://diudiu6.com/tags/CNN/>CNN</a>
+<a href=http://diudiu6.com/tags/LeetCode/>LeetCode</a>
+<a href=http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/>Markdown语法</a>
+<a href=http://diudiu6.com/tags/TensorFlow/>TensorFlow</a>
+<a href=http://diudiu6.com/tags/Windows/>Windows</a>
+<a href=http://diudiu6.com/tags/hash/>hash</a>
+<a href=http://diudiu6.com/tags/learning/>learning</a>
+<a href=http://diudiu6.com/tags/xpath/>xpath</a>
+<a href=http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/>初等数学</a>
+<a href=http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/>回溯</a>
+<a href=http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/>广度优先搜索 BFS</a>
+<a href=http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/>流畅的python</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/>深度优先搜索 DFS</a>
+<a href=http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/>深度学习</a>
+<a href=http://diudiu6.com/tags/%E9%80%92%E5%BD%92/>递归</a>
+</div>
+</section>
+<section class=widget>
+<h3 class=widget-title>友情链接</h3>
+<ul class=widget-list>
+<li>
+<a target=_blank href=https://www.flysnow.org/ title=飞雪无情的博客>飞雪无情的博客</a>
+</li>
+</ul>
+</section>
+<section class=widget>
+<h3 class=widget-title>其它</h3>
+<ul class=widget-list>
+<li><a href=http://diudiu6.com/index.xml>文章 RSS</a></li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
