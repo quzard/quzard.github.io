@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>TensorFlow on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/tags/TensorFlow/</link>
+    <description>Recent content in TensorFlow on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 05 Feb 2019 18:29:26 +0800</lastBuildDate><atom:link href="http://diudiu6.com/tags/TensorFlow/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TensorFlow介绍</title>
+      <link>http://diudiu6.com/post/TensorFlow%E6%95%99%E7%A8%8B/</link>
+      <pubDate>Tue, 05 Feb 2019 18:29:26 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/TensorFlow%E6%95%99%E7%A8%8B/</guid>
+      <description>&lt;h1 id=&#34;1关于tensorflow&#34;&gt;1.关于TensorFlow&lt;/h1&gt;
+&lt;p&gt;TensorFlow是一个采用数据流图（data flow graphs），用于数值计算的开源软件库。节点（Nodes）在图中表示数学操作，图中的（edges）则表示在节点间相互联系的多维数据数组，即张量（tensor）。它灵活的架构让你可以在多种平台上展开计算，例如台式计算机中的一个或多个CPU（或GPU），服务器，移动设备等等。TensorFlow 最初由Google大脑小组（隶属于Google机器智能研究机构）的研究员和工程师们开发出来，用于机器学习和深度神经网络方面的研究，但这个系统的通用性使其也可广泛用于其他计算领域。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

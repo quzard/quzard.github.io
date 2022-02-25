@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Markdown语法 on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/</link>
+    <description>Recent content in Markdown语法 on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 04 Feb 2019 11:43:45 +0800</lastBuildDate><atom:link href="http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Markdown语法</title>
+      <link>http://diudiu6.com/post/Markdown%E8%AF%AD%E6%B3%95/</link>
+      <pubDate>Mon, 04 Feb 2019 11:43:45 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/Markdown%E8%AF%AD%E6%B3%95/</guid>
+      <description>&lt;h1 id=&#34;markdown-是什么&#34;&gt;Markdown 是什么&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Markdown 是一种轻量级标记语言，创始人为约翰·格鲁伯（John Gruber）。它允许人们&lt;strong&gt;使用易读易写的纯文本格式编写文档，然后转换成有效的 XHTML（或者 HTML）  文档&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这种语言吸收了很多在电子邮件中已有的纯文本标记的特性。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

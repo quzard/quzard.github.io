@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>第七章 on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/</link>
+    <description>Recent content in 第七章 on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 02 Feb 2019 10:41:29 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>函数装饰器和闭包</title>
+      <link>http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/</link>
+      <pubDate>Sat, 02 Feb 2019 10:41:29 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/</guid>
+      <description>&lt;h2 id=&#34;函数装饰器&#34;&gt;函数装饰器&lt;/h2&gt;
+&lt;p&gt;函数装饰器用于在源码中“标记”函数，以某种方式增强函数的行为。这是一项强大的功能，但是若想掌握，必须理解闭包。&lt;/p&gt;
+&lt;p&gt;装饰器是可调用的对象，其参数是另一个函数（被装饰的函数）。 装饰器可能会处理被装饰的函数，然后把它返回，或者将其替换成另一个函数或可调用对象。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

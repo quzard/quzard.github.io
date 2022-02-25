@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>第二章 on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/</link>
+    <description>Recent content in 第二章 on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Thu, 24 Jan 2019 20:51:23 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>序列构成的数组</title>
+      <link>http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/</link>
+      <pubDate>Thu, 24 Jan 2019 20:51:23 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/</guid>
+      <description>&lt;p&gt;不管是python的哪种数据结构，字符串、列表、字节序列、数组、XML 元素，抑或是数据库查询结果，它们都共用一套丰富的操作：迭代、切片、排序，还有拼接。&lt;/p&gt;
+&lt;p&gt;深入理解 Python 中的不同序列类型，不但能让我们避免重新发明轮子，它们的 API 还能帮助我们把自己定义的 API 设计得跟原生的序列一样，或者是跟未来可能出现的序列类型保持兼容。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

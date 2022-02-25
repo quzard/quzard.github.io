@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>一等函数 | 知其然，知其所以然</title>
+    <meta property="og:title" content="一等函数 - 知其然，知其所以然">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-02-01T22:03:30&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-02-01T22:03:30&#43;08:00'>
+        
+    <meta name="Keywords" content="golang">
+    <meta name="description" content="一等函数">
+        
+    <meta name="author" content="裘丢丢">
+    <meta property="og:url" content="http://diudiu6.com/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://diudiu6.com">
+                        知其然，知其所以然
+                    </a>
+                
+                <p class="description">知识广度是深度的副产品</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://diudiu6.com">首页</a>
+                    
+                    <a  href="http://diudiu6.com/tools/" title="工具">工具</a>
+                    
+                    <a  href="http://diudiu6.com/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://diudiu6.com/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents"></nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if (leftPos < 220) {
+                postToc.css({ "width": leftPos - 10, "margin-left": (0 - leftPos) })
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+
+        if ($("#TableOfContents").children().length < 1) {
+            $(".post-toc").remove();
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">一等函数</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年2月1日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Python'>Python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0'>第五章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <p>“一等对象”定义为满足下述条件的程序实体：
+在运行时创建
+能赋值给变量或数据结构中的元素
+能作为参数传给函数
+能作为函数的返回结果</p>
+<p>sum 和 reduce 的通用思想是把某个操作连续应用到序列的元素上，累计之前的结果，把
+一系列值归约成一个值。
+all 和 any 也是内置的归约函数。
+all(iterable)
+如果 iterable 的每个元素都是真值，返回 True；all([]) 返回 True。
+any(iterable)
+　　只要 iterable 中有元素是真值，就返回 True；any([]) 返回 False。</p>
+<p>匿名函数
+lambda 关键字在 Python 表达式内创建匿名函数</p>
+<p>与 def 语句一样，lambda 表达式会创建函数对象。这是
+Python 中几种可调用对象的一种。</p>
+<p>调用运算符（即 ()）可调用对象：</p>
+<p>·用户定义的函数
+·内置函数
+　　使用 C 语言（CPython）实现的函数，如 len 或 time.strftime。
+·内置方法
+　　使用 C 语言实现的方法，如 dict.get。
+·类
+　　调用类时会运行类的 <strong>new</strong> 方法创建一个实例，然后运行 <strong>init</strong> 方法，初始
+化实例，最后把实例返回给调用方。调用类相当于调用函数。
+·类的实例
+　　如果类定义了 <strong>call</strong> 方法，那么它的实例可以作为函数调用。
+·生成器函数(比较特殊，详见 14 章。生成器函数还可以作为协程，参见第 16 章。)
+　　使用 yield 关键字的函数或方法。调用生成器函数返回的是生成器对象。</p>
+<p>callable() 函数   判断对象能否调用</p>
+<p>不仅 Python 函数是真正的对象，任何 Python 对象都可以表现得像函数。
+为此，只需实现实例方法 <strong>call</strong>。</p>
+<p>实现 <strong>call</strong> 方法的类是创建函数类对象的简便方式</p>
+<p>除了 <strong>doc</strong>，函数对象还有很多属性。使用 dir 函数可以探知 一个对象
+具有的属性
+例如</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#0086b3">dir</span>(<span style="color:#0086b3">int</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> [<span style="color:#d14">&#39;__abs__&#39;</span>, <span style="color:#d14">&#39;__add__&#39;</span>, <span style="color:#d14">&#39;__and__&#39;</span>, <span style="color:#d14">&#39;__bool__&#39;</span>, <span style="color:#d14">&#39;__ceil__&#39;</span>, <span style="color:#d14">&#39;__class__&#39;</span>, <span style="color:#d14">&#39;__delattr__&#39;</span>, <span style="color:#d14">&#39;__dir__&#39;</span>, <span style="color:#d14">&#39;__divmod__&#39;</span>, <span style="color:#d14">&#39;__doc__&#39;</span>, <span style="color:#d14">&#39;__eq__&#39;</span>, <span style="color:#d14">&#39;__float__&#39;</span>, <span style="color:#d14">&#39;__floor__&#39;</span>, <span style="color:#d14">&#39;__floordiv__&#39;</span>, <span style="color:#d14">&#39;__format__&#39;</span>, <span style="color:#d14">&#39;__ge__&#39;</span>, <span style="color:#d14">&#39;__getattribute__&#39;</span>, <span style="color:#d14">&#39;__getnewargs__&#39;</span>, <span style="color:#d14">&#39;__gt__&#39;</span>, <span style="color:#d14">&#39;__hash__&#39;</span>, <span style="color:#d14">&#39;__index__&#39;</span>, <span style="color:#d14">&#39;__init__&#39;</span>, <span style="color:#d14">&#39;__init_subclass__&#39;</span>, <span style="color:#d14">&#39;__int__&#39;</span>, <span style="color:#d14">&#39;__invert__&#39;</span>, <span style="color:#d14">&#39;__le__&#39;</span>, <span style="color:#d14">&#39;__lshift__&#39;</span>, <span style="color:#d14">&#39;__lt__&#39;</span>, <span style="color:#d14">&#39;__mod__&#39;</span>, <span style="color:#d14">&#39;__mul__&#39;</span>, <span style="color:#d14">&#39;__ne__&#39;</span>, <span style="color:#d14">&#39;__neg__&#39;</span>, <span style="color:#d14">&#39;__new__&#39;</span>, <span style="color:#d14">&#39;__or__&#39;</span>, <span style="color:#d14">&#39;__pos__&#39;</span>, <span style="color:#d14">&#39;__pow__&#39;</span>, <span style="color:#d14">&#39;__radd__&#39;</span>, <span style="color:#d14">&#39;__rand__&#39;</span>, <span style="color:#d14">&#39;__rdivmod__&#39;</span>, <span style="color:#d14">&#39;__reduce__&#39;</span>, <span style="color:#d14">&#39;__reduce_ex__&#39;</span>, <span style="color:#d14">&#39;__repr__&#39;</span>, <span style="color:#d14">&#39;__rfloordiv__&#39;</span>, <span style="color:#d14">&#39;__rlshift__&#39;</span>, <span style="color:#d14">&#39;__rmod__&#39;</span>, <span style="color:#d14">&#39;__rmul__&#39;</span>, <span style="color:#d14">&#39;__ror__&#39;</span>, <span style="color:#d14">&#39;__round__&#39;</span>, <span style="color:#d14">&#39;__rpow__&#39;</span>, <span style="color:#d14">&#39;__rrshift__&#39;</span>, <span style="color:#d14">&#39;__rshift__&#39;</span>, <span style="color:#d14">&#39;__rsub__&#39;</span>, <span style="color:#d14">&#39;__rtruediv__&#39;</span>, <span style="color:#d14">&#39;__rxor__&#39;</span>, <span style="color:#d14">&#39;__setattr__&#39;</span>, <span style="color:#d14">&#39;__sizeof__&#39;</span>, <span style="color:#d14">&#39;__str__&#39;</span>, <span style="color:#d14">&#39;__sub__&#39;</span>, <span style="color:#d14">&#39;__subclasshook__&#39;</span>, <span style="color:#d14">&#39;__truediv__&#39;</span>, <span style="color:#d14">&#39;__trunc__&#39;</span>, <span style="color:#d14">&#39;__xor__&#39;</span>, <span style="color:#d14">&#39;bit_length&#39;</span>, <span style="color:#d14">&#39;conjugate&#39;</span>, <span style="color:#d14">&#39;denominator&#39;</span>, <span style="color:#d14">&#39;from_bytes&#39;</span>, <span style="color:#d14">&#39;imag&#39;</span>, <span style="color:#d14">&#39;numerator&#39;</span>, <span style="color:#d14">&#39;real&#39;</span>, <span style="color:#d14">&#39;to_bytes&#39;</span>]
+</code></pre></td></tr></table>
+</div>
+</div><p>Python 3 提供了仅限关键字参数（keyword-only argument）
+调用函数时使用 * 和** “展开” 可迭代对象，映射到单个参数。</p>
+<p>*args
+可变参数允许你传入0个或任意个参数，这些可变参数在函数调用时自动组装
+为一个tuple。</p>
+<p>用法:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">calc</span>(<span style="color:#000;font-weight:bold">*</span>numbers):
+    <span style="color:#0086b3">sum</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>
+    <span style="color:#000;font-weight:bold">for</span> n <span style="color:#000;font-weight:bold">in</span> numbers:
+        <span style="color:#0086b3">sum</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">sum</span> <span style="color:#000;font-weight:bold">+</span> n <span style="color:#000;font-weight:bold">*</span> n
+    <span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">sum</span>
+<span style="color:#998;font-style:italic">#笨方法</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> nums <span style="color:#000;font-weight:bold">=</span> [<span style="color:#099">1</span>, <span style="color:#099">2</span>, <span style="color:#099">3</span>]
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> calc(nums[<span style="color:#099">0</span>], nums[<span style="color:#099">1</span>], nums[<span style="color:#099">2</span>])
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#099">14</span>
+
+<span style="color:#998;font-style:italic">#聪明方法,可以在list或tuple前面加一个*号，把list或tuple的元素变成</span>
+<span style="color:#998;font-style:italic">#可变参数传进去</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> nums <span style="color:#000;font-weight:bold">=</span> [<span style="color:#099">1</span>, <span style="color:#099">2</span>, <span style="color:#099">3</span>]
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> calc(<span style="color:#000;font-weight:bold">*</span>nums)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#099">14</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>**kwargs
+关键字参数允许你传入0个或任意个含参数名的参数，这些
+关键字参数在函数内部自动组装为一个dict</p>
+<p>用法:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">person</span>(name, age, <span style="color:#000;font-weight:bold">**</span>kw):
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;name:&#39;</span>, name, <span style="color:#d14">&#39;age:&#39;</span>, age, <span style="color:#d14">&#39;other:&#39;</span>, kw)
+
+<span style="color:#998;font-style:italic">#笨方法</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> extra <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;city&#39;</span>: <span style="color:#d14">&#39;Beijing&#39;</span>, <span style="color:#d14">&#39;job&#39;</span>: <span style="color:#d14">&#39;Engineer&#39;</span>}
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> person(<span style="color:#d14">&#39;Jack&#39;</span>, <span style="color:#099">24</span>, city<span style="color:#000;font-weight:bold">=</span>extra[<span style="color:#d14">&#39;city&#39;</span>], job<span style="color:#000;font-weight:bold">=</span>extra[<span style="color:#d14">&#39;job&#39;</span>])
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> name: Jack age: <span style="color:#099">24</span> other: {<span style="color:#d14">&#39;city&#39;</span>: <span style="color:#d14">&#39;Beijing&#39;</span>, <span style="color:#d14">&#39;job&#39;</span>: <span style="color:#d14">&#39;Engineer&#39;</span>}
+
+<span style="color:#998;font-style:italic">#聪明方法 </span>
+<span style="color:#998;font-style:italic">#用**extra表示把extra这个dict的所有key-value用关键字参数</span>
+<span style="color:#998;font-style:italic">#传入到函数的**kw参数，kw将获得一个dict，注意kw获得的dict是extra的</span>
+<span style="color:#998;font-style:italic">#一份拷贝，对kw的改动不会影响到函数外的extra</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> extra <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;city&#39;</span>: <span style="color:#d14">&#39;Beijing&#39;</span>, <span style="color:#d14">&#39;job&#39;</span>: <span style="color:#d14">&#39;Engineer&#39;</span>}
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> person(<span style="color:#d14">&#39;Jack&#39;</span>, <span style="color:#099">24</span>, <span style="color:#000;font-weight:bold">**</span>extra)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> name: Jack age: <span style="color:#099">24</span> other: {<span style="color:#d14">&#39;city&#39;</span>: <span style="color:#d14">&#39;Beijing&#39;</span>, <span style="color:#d14">&#39;job&#39;</span>: <span style="color:#d14">&#39;Engineer&#39;</span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>仅限关键词参数  KEYWORD_ONLY</p>
+<p>和关键字参数*kw不同，仅限关键词参数需要一个特殊分隔符，
+*后面的参数被视为仅限关键词参数。</p>
+<p>用法:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">person</span>(name, age, <span style="color:#000;font-weight:bold">*</span>, city, job):
+    <span style="color:#0086b3">print</span>(name, age, city, job)
+
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> person(<span style="color:#d14">&#39;Jack&#39;</span>, <span style="color:#099">24</span>, city<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;Beijing&#39;</span>, job<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;Engineer&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> Jack <span style="color:#099">24</span> Beijing Engineer
+</code></pre></td></tr></table>
+</div>
+</div><p>如果函数定义中已经有了一个可变参数，后面跟着的仅限关键词参数就
+不再需要一个特殊分隔符*了：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">person</span>(name, age, <span style="color:#000;font-weight:bold">*</span>args, city, job):
+    <span style="color:#0086b3">print</span>(name, age, args, city, job)
+</code></pre></td></tr></table>
+</div>
+</div><p>仅限关键词参数必须传入参数名，这和位置参数不同。如果没有传入参数名，
+调用将报错：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> person(<span style="color:#d14">&#39;Jack&#39;</span>, <span style="color:#099">24</span>, <span style="color:#d14">&#39;Beijing&#39;</span>, <span style="color:#d14">&#39;Engineer&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> Traceback (most recent call last):
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>   File <span style="color:#d14">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#099">1</span>, <span style="color:#000;font-weight:bold">in</span> <span style="color:#000;font-weight:bold">&lt;</span>module<span style="color:#000;font-weight:bold">&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#900;font-weight:bold">TypeError</span>: person() takes <span style="color:#099">2</span> positional arguments but <span style="color:#099">4</span> were given
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> 由于调用时缺少参数名city和job<span style="color:#a61717;background-color:#e3d2d2">，</span>Python解释器把这4个参数均视为位置参数<span style="color:#a61717;background-color:#e3d2d2">，</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> 但person()函数仅接受2个位置参数<span style="color:#a61717;background-color:#e3d2d2">。</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>使用仅限关键词参数时，要特别注意，如果没有可变参数，就必须加一个作为特殊分隔符。
+如果缺少，Python解释器将无法识别位置参数和仅限关键词参数：</p>
+<p>仅限关键词参数不一定要有默认值，但此时强制必须传入实参。</p>
+<p>Python 中函数的参数可以分为两大类：</p>
+<p>定位参数（Positional）：表示参数的位置是固定的。
+比如对于函数 foo(a, b) 来说，foo(1, 2) 和 foo(2, 1) 就是截然不同的，
+a 和 b 的位置是固定的，不可随意调换。
+关键词参数（Keyword）：表示参数的位置不重要，但是参数名称很重要。
+比如 foo(a = 1, b = 2) 和 foo(b = 2, a = 1) 的含义相同。</p>
+<p>def foo(*args, n=1, **kwargs):
+print(n)
+这个函数在调用时，如果参数 n 不指定名字，就会被前面的 *args 处理掉，
+如果指定的名字不是 n，又会被后面的 **kwargs 处理掉，
+所以参数 n 必须精确的以 (n = xxx) 的形式出现，也就是 KEYWORD_ONLY。</p>
+<p>函数对象有个 <strong>defaults</strong> 属性，它的值是一个元组，里面保存着定位参数和关键字
+参数的默认值。仅限关键字参数的默认值在 <strong>kwdefaults</strong> 属性中。然而，参数的名
+称在 <strong>code</strong> 属性中，它的值是一个 code 对象引用，自身也有很多属性。</p>
+<p>#text 定位参数	max_len 关键词参数  a 仅限关键词参数 如果a没有默认值，clip初始化时需要传入a</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">clip</span>(text, max_len<span style="color:#000;font-weight:bold">=</span><span style="color:#099">80</span>,<span style="color:#000;font-weight:bold">*</span>,a):
+    <span style="color:#d14">&#34;&#34;&#34;在max_len前面或后面的第一个空格处截断文本
+</span><span style="color:#d14">    &#34;&#34;&#34;</span>
+    end <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">None</span>
+    <span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">len</span>(text) <span style="color:#000;font-weight:bold">&gt;</span> max_len:
+        space_before <span style="color:#000;font-weight:bold">=</span> text<span style="color:#000;font-weight:bold">.</span>rfind(<span style="color:#d14">&#39; &#39;</span>, <span style="color:#099">0</span>, max_len)
+        <span style="color:#000;font-weight:bold">if</span> space_before <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">0</span>:
+            end <span style="color:#000;font-weight:bold">=</span> space_before
+        <span style="color:#000;font-weight:bold">else</span>:
+            space_after <span style="color:#000;font-weight:bold">=</span> text<span style="color:#000;font-weight:bold">.</span>rfind(<span style="color:#d14">&#39; &#39;</span>, max_len)
+        <span style="color:#000;font-weight:bold">if</span> space_after <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">0</span>:
+            end <span style="color:#000;font-weight:bold">=</span> space_after
+    <span style="color:#000;font-weight:bold">if</span> end <span style="color:#000;font-weight:bold">is</span> <span style="color:#000;font-weight:bold">None</span>:  <span style="color:#998;font-style:italic"># 没找到空格</span>
+        end <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">len</span>(text)
+    <span style="color:#000;font-weight:bold">return</span> text[:end]<span style="color:#000;font-weight:bold">.</span>rstrip()
+
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> clip<span style="color:#000;font-weight:bold">.</span>__defaults__
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#099">80</span>,)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> clip<span style="color:#000;font-weight:bold">.</span>__code__  <span style="color:#998;font-style:italic"># doctest: +ELLIPSIS</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>code <span style="color:#0086b3">object</span> clip at <span style="color:#099">0</span>x<span style="color:#000;font-weight:bold">...&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> clip<span style="color:#000;font-weight:bold">.</span>__code__<span style="color:#000;font-weight:bold">.</span>co_varnames
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;text&#39;</span>, <span style="color:#d14">&#39;max_len&#39;</span>, <span style="color:#d14">&#39;end&#39;</span>, <span style="color:#d14">&#39;space_before&#39;</span>, <span style="color:#d14">&#39;space_after&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> clip<span style="color:#000;font-weight:bold">.</span>__code__<span style="color:#000;font-weight:bold">.</span>co_argcount
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#099">2</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>提取函数的签名
+inspect.signature 函数返回一个 inspect.Signature 对象，它有一
+个 parameters 属性，这是一个有序映射，把参数名和 inspect.Parameter 对象对应起
+来。各个 Parameter 属性也有自己的属性，例如 name、default 和 kind。特殊的
+inspect._empty 值表示没有默认值，注意 None 是有效的默认值不会显示inspect._empty（也经常这么做），
+而且这么做是合理的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">from</span> <span style="color:#555">inspect</span> <span style="color:#000;font-weight:bold">import</span> signature
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> sig <span style="color:#000;font-weight:bold">=</span> signature(clip)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> sig  <span style="color:#998;font-style:italic"># doctest: +ELLIPSIS</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>inspect<span style="color:#000;font-weight:bold">.</span>Signature <span style="color:#0086b3">object</span> at <span style="color:#099">0</span>x<span style="color:#000;font-weight:bold">...&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#0086b3">str</span>(sig)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;(text, max_len=80)&#39;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">for</span> name, param <span style="color:#000;font-weight:bold">in</span> sig<span style="color:#000;font-weight:bold">.</span>parameters<span style="color:#000;font-weight:bold">.</span>items():
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>         <span style="color:#0086b3">print</span>(param<span style="color:#000;font-weight:bold">.</span>kind, <span style="color:#d14">&#39;:&#39;</span>, param<span style="color:#000;font-weight:bold">.</span>name, <span style="color:#d14">&#39;=&#39;</span>, param<span style="color:#000;font-weight:bold">.</span>default)
+
+POSITIONAL_OR_KEYWORD : text <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#000;font-weight:bold">class</span> <span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#458;font-weight:bold">inspect</span><span style="color:#000;font-weight:bold">.</span>_empty<span style="color:#d14">&#39;&gt;</span>
+POSITIONAL_OR_KEYWORD : max_len <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">80</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>注解
+inspect.Parameter 对象还有一个 annotation（注解）属性</p>
+<p>函数声明中的各个参数可以在 : 之后增加注解表达式。如果参数有默认值，注解放在参
+数名和 = 号之间。如果想注解返回值，在 ) 和函数声明末尾的 : 之间添加 -&gt; 和一个表达
+式。那个表达式可以是任何类型。注解中最常用的类型是类（如 str 或 int）和字符串
+（如 &lsquo;int &gt; 0&rsquo;）。在示例 5-19 中，max_len 参数的注解用的是字符串。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">clip</span>(text:<span style="color:#0086b3">str</span>, max_len:<span style="color:#d14">&#39;int &gt; 0&#39;</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">80</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#0086b3">str</span>: 
+    <span style="color:#000;font-weight:bold">return</span> text
+
+ clip<span style="color:#000;font-weight:bold">.</span>__annotations__
+{<span style="color:#d14">&#39;text&#39;</span>: <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#000;font-weight:bold">class</span> <span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#458;font-weight:bold">str</span><span style="color:#d14">&#39;&gt;, &#39;</span>max_len<span style="color:#d14">&#39;: &#39;</span><span style="color:#0086b3">int</span> <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span><span style="color:#d14">&#39;, &#39;</span><span style="color:#000;font-weight:bold">return</span><span style="color:#d14">&#39;: &lt;class &#39;</span><span style="color:#0086b3">str</span><span style="color:#d14">&#39;&gt;}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Python 对注解所做的唯一的事情是，把它们存储在函数的 <strong>annotations</strong> 属性里。仅
+此而已，Python 不做检查、不做强制、不做验证，什么操作都不做。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">from</span> <span style="color:#555">inspect</span> <span style="color:#000;font-weight:bold">import</span> signature
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> sig <span style="color:#000;font-weight:bold">=</span> signature(clip)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> sig<span style="color:#000;font-weight:bold">.</span>return_annotation
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#000;font-weight:bold">class</span> <span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#458;font-weight:bold">str</span><span style="color:#d14">&#39;&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">for</span> param <span style="color:#000;font-weight:bold">in</span> sig<span style="color:#000;font-weight:bold">.</span>parameters<span style="color:#000;font-weight:bold">.</span>values():
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">...</span>     note <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">repr</span>(param<span style="color:#000;font-weight:bold">.</span>annotation)<span style="color:#000;font-weight:bold">.</span>ljust(<span style="color:#099">13</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(note, <span style="color:#d14">&#39;:&#39;</span>, param<span style="color:#000;font-weight:bold">.</span>name, <span style="color:#d14">&#39;=&#39;</span>, param<span style="color:#000;font-weight:bold">.</span>default)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#000;font-weight:bold">class</span> <span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#458;font-weight:bold">str</span><span style="color:#d14">&#39;&gt; : text = &lt;class &#39;</span>inspect<span style="color:#000;font-weight:bold">.</span>_empty<span style="color:#d14">&#39;&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;int &gt; 0&#39;</span>     : max_len <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">80</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>operator 模块</p>
+<p>使用 reduce 函数和一个匿名函数计算阶乘</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">from</span> <span style="color:#555">functools</span> <span style="color:#000;font-weight:bold">import</span> reduce
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">fact</span>(n):
+    <span style="color:#000;font-weight:bold">return</span> reduce(<span style="color:#000;font-weight:bold">lambda</span> a, b: a<span style="color:#000;font-weight:bold">*</span>b, <span style="color:#0086b3">range</span>(<span style="color:#099">1</span>, n<span style="color:#000;font-weight:bold">+</span><span style="color:#099">1</span>))
+
+使用 reduce 和 operator<span style="color:#000;font-weight:bold">.</span>mul 函数计算阶乘
+<span style="color:#000;font-weight:bold">from</span> <span style="color:#555">functools</span> <span style="color:#000;font-weight:bold">import</span> reduce
+<span style="color:#000;font-weight:bold">from</span> <span style="color:#555">operator</span> <span style="color:#000;font-weight:bold">import</span> mul
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">fact</span>(n):
+    <span style="color:#000;font-weight:bold">return</span> reduce(mul, <span style="color:#0086b3">range</span>(<span style="color:#099">1</span>, n<span style="color:#000;font-weight:bold">+</span><span style="color:#099">1</span>))
+
+
+ metro_data <span style="color:#000;font-weight:bold">=</span> [
+<span style="color:#000;font-weight:bold">...</span>     (<span style="color:#d14">&#39;Tokyo&#39;</span>, <span style="color:#d14">&#39;JP&#39;</span>, <span style="color:#099">36.933</span>, (<span style="color:#099">35.689722</span>, <span style="color:#099">139.691667</span>)),
+<span style="color:#000;font-weight:bold">...</span>     (<span style="color:#d14">&#39;Delhi NCR&#39;</span>, <span style="color:#d14">&#39;IN&#39;</span>, <span style="color:#099">21.935</span>, (<span style="color:#099">28.613889</span>, <span style="color:#099">77.208889</span>)),
+<span style="color:#000;font-weight:bold">...</span>     (<span style="color:#d14">&#39;Mexico City&#39;</span>, <span style="color:#d14">&#39;MX&#39;</span>, <span style="color:#099">20.142</span>, (<span style="color:#099">19.433333</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">99.133333</span>)),
+<span style="color:#000;font-weight:bold">...</span>     (<span style="color:#d14">&#39;New York-Newark&#39;</span>, <span style="color:#d14">&#39;US&#39;</span>, <span style="color:#099">20.104</span>, (<span style="color:#099">40.808611</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">74.020386</span>)),
+<span style="color:#000;font-weight:bold">...</span>     (<span style="color:#d14">&#39;Sao Paulo&#39;</span>, <span style="color:#d14">&#39;BR&#39;</span>, <span style="color:#099">19.649</span>, (<span style="color:#000;font-weight:bold">-</span><span style="color:#099">23.547778</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">46.635833</span>)),
+<span style="color:#000;font-weight:bold">...</span> ]
+</code></pre></td></tr></table>
+</div>
+</div><p>itemgetter(1) 的作用与 lambda fields: fields[1] 一样：创建一个接受集合
+的函数，返回索引位 1 上的元素。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">from</span> <span style="color:#555">operator</span> <span style="color:#000;font-weight:bold">import</span> itemgetter
+<span style="color:#000;font-weight:bold">for</span> city <span style="color:#000;font-weight:bold">in</span> <span style="color:#0086b3">sorted</span>(metro_data, key<span style="color:#000;font-weight:bold">=</span>itemgetter(<span style="color:#099">1</span>)):
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(city)
+<span style="color:#000;font-weight:bold">...</span>
+(<span style="color:#d14">&#39;Sao Paulo&#39;</span>, <span style="color:#d14">&#39;BR&#39;</span>, <span style="color:#099">19.649</span>, (<span style="color:#000;font-weight:bold">-</span><span style="color:#099">23.547778</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">46.635833</span>))
+(<span style="color:#d14">&#39;Delhi NCR&#39;</span>, <span style="color:#d14">&#39;IN&#39;</span>, <span style="color:#099">21.935</span>, (<span style="color:#099">28.613889</span>, <span style="color:#099">77.208889</span>))
+(<span style="color:#d14">&#39;Tokyo&#39;</span>, <span style="color:#d14">&#39;JP&#39;</span>, <span style="color:#099">36.933</span>, (<span style="color:#099">35.689722</span>, <span style="color:#099">139.691667</span>))
+(<span style="color:#d14">&#39;Mexico City&#39;</span>, <span style="color:#d14">&#39;MX&#39;</span>, <span style="color:#099">20.142</span>, (<span style="color:#099">19.433333</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">99.133333</span>))
+(<span style="color:#d14">&#39;New York-Newark&#39;</span>, <span style="color:#d14">&#39;US&#39;</span>, <span style="color:#099">20.104</span>, (<span style="color:#099">40.808611</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">74.020386</span>))
+</code></pre></td></tr></table>
+</div>
+</div><p>如果把多个参数传给 itemgetter，它构建的函数会返回提取的值构成的元组</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> cc_name <span style="color:#000;font-weight:bold">=</span> itemgetter(<span style="color:#099">1</span>, <span style="color:#099">0</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">for</span> city <span style="color:#000;font-weight:bold">in</span> metro_data:
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(cc_name(city))
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">...</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;JP&#39;</span>, <span style="color:#d14">&#39;Tokyo&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;IN&#39;</span>, <span style="color:#d14">&#39;Delhi NCR&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;MX&#39;</span>, <span style="color:#d14">&#39;Mexico City&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;US&#39;</span>, <span style="color:#d14">&#39;New York-Newark&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> (<span style="color:#d14">&#39;BR&#39;</span>, <span style="color:#d14">&#39;Sao Paulo&#39;</span>)
+</code></pre></td></tr></table>
+</div>
+</div>
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="http://diudiu6.com">裘丢丢</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="http://diudiu6.com/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/">http://diudiu6.com/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">使用一等函数设计模式</a></li>
+        
+        <li><a href="/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/">文本和字节序列</a></li>
+        
+        <li><a href="/post/%E5%AD%97%E5%85%B8%E5%92%8C%E9%9B%86%E5%90%88/">字典和集合</a></li>
+        
+        <li><a href="/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/">序列构成的数组</a></li>
+        
+        <li><a href="/archives/"></a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></li>
+                
+                <li><a href='/tags/learning'>learning</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="http://diudiu6.com">知其然，知其所以然 By 裘丢丢</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-P4G4EG6P5G', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://diudiu6.com/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://diudiu6.com">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/" title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/" title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" title="2. 两数相加">2. 两数相加</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/" title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/" title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/" title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1.-Two-Sum/" title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/" title="类继承">类继承</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;/">C&#43;&#43; (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/CNN/">CNN (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Easy/">Easy (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/LeetCode/">LeetCode (9)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Medium/">Medium (5)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Python/">Python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/TensorFlow/">TensorFlow (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/hash/">hash (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/">page 搭建 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/">使用技巧 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">广度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">深度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习 (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/">爬虫 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/">第七章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/">第三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/">第九章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/">第二章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/">第五章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/">第八章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/">第六章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/">第十三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/">第四章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E9%80%92%E5%BD%92/">递归 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="http://diudiu6.com/tags/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus</a>
+    
+    <a href="http://diudiu6.com/tags/CNN/">CNN</a>
+    
+    <a href="http://diudiu6.com/tags/LeetCode/">LeetCode</a>
+    
+    <a href="http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法</a>
+    
+    <a href="http://diudiu6.com/tags/TensorFlow/">TensorFlow</a>
+    
+    <a href="http://diudiu6.com/tags/Windows/">Windows</a>
+    
+    <a href="http://diudiu6.com/tags/hash/">hash</a>
+    
+    <a href="http://diudiu6.com/tags/learning/">learning</a>
+    
+    <a href="http://diudiu6.com/tags/xpath/">xpath</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/">初等数学</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/">回溯</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/">广度优先搜索 BFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/">深度优先搜索 DFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+    
+    <a href="http://diudiu6.com/tags/%E9%80%92%E5%BD%92/">递归</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://www.flysnow.org/" title="飞雪无情的博客">飞雪无情的博客</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://diudiu6.com/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

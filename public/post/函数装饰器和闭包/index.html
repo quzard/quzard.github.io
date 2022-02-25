@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>函数装饰器和闭包 | 知其然，知其所以然</title>
+    <meta property="og:title" content="函数装饰器和闭包 - 知其然，知其所以然">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-02-02T10:41:29&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-02-02T10:41:29&#43;08:00'>
+        
+    <meta name="Keywords" content="golang">
+    <meta name="description" content="函数装饰器和闭包">
+        
+    <meta name="author" content="裘丢丢">
+    <meta property="og:url" content="http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://diudiu6.com">
+                        知其然，知其所以然
+                    </a>
+                
+                <p class="description">知识广度是深度的副产品</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://diudiu6.com">首页</a>
+                    
+                    <a  href="http://diudiu6.com/tools/" title="工具">工具</a>
+                    
+                    <a  href="http://diudiu6.com/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://diudiu6.com/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#函数装饰器">函数装饰器</a></li>
+    <li><a href="#变量作用域规则">变量作用域规则</a></li>
+    <li><a href="#闭包">闭包</a>
+      <ul>
+        <li><a href="#nonlocal声明">nonlocal声明</a></li>
+        <li><a href="#修饰器原理">修饰器原理</a></li>
+        <li><a href="#使用functoolslru_cache做备忘">使用functools.lru_cache做备忘</a></li>
+        <li><a href="#functoolssingledispatch-装饰器">functools.singledispatch 装饰器</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if (leftPos < 220) {
+                postToc.css({ "width": leftPos - 10, "margin-left": (0 - leftPos) })
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+
+        if ($("#TableOfContents").children().length < 1) {
+            $(".post-toc").remove();
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">函数装饰器和闭包</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年2月2日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Python'>Python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0'>第七章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h2 id="函数装饰器">函数装饰器</h2>
+<p>函数装饰器用于在源码中“标记”函数，以某种方式增强函数的行为。这是一项强大的功能，但是若想掌握，必须理解闭包。</p>
+<p>装饰器是可调用的对象，其参数是另一个函数（被装饰的函数）。 装饰器可能会处理被装饰的函数，然后把它返回，或者将其替换成另一个函数或可调用对象。</p>
+<p>假如有个名为 decorate 的装饰器：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Python" data-lang="Python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">deco</span>(func):
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">inner</span>():
+        <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running inner()&#39;</span>)
+    <span style="color:#000;font-weight:bold">return</span> inner
+<span style="color:#3c5d5d;font-weight:bold">@decorate</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">target</span>():
+   <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running target()&#39;</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>上述代码的效果与下述写法一样：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">deco</span>(func):
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">inner</span>():
+        <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running inner()&#39;</span>)
+    <span style="color:#000;font-weight:bold">return</span> inner
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">target</span>():
+   <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running target()&#39;</span>)
+target <span style="color:#000;font-weight:bold">=</span> decorate(target)<span style="color:#a61717;background-color:#e3d2d2">```</span>
+两种写法的最终结果一样<span style="color:#a61717;background-color:#e3d2d2">：</span>上述两个代码片段执行完毕后得到的 target 不一定是原来那
+个 target 函数<span style="color:#a61717;background-color:#e3d2d2">，</span>而是 decorate(target) 返回的函数<span style="color:#a61717;background-color:#e3d2d2">，</span>也就是inner的引用<span style="color:#a61717;background-color:#e3d2d2">。</span>
+
+<span style="color:#a61717;background-color:#e3d2d2">​```</span>Python
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">deco</span>(func):
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>    func()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">inner</span>():
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>        <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running inner()&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>    <span style="color:#000;font-weight:bold">return</span> inner <span style="color:#998;font-style:italic"># deco 返回 inner 函数对象。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span><span style="color:#3c5d5d;font-weight:bold">@decorate</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">target</span>(): <span style="color:#998;font-style:italic">#  使用 deco 装饰 target。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>   <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running target()&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>target() <span style="color:#998;font-style:italic">#  调用被装饰的 target 其实会运行 inner。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>running target()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>running inner()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> target  <span style="color:#998;font-style:italic">#  审查对象，发现 target 现在是 inner 的引用。</span>
+<span style="color:#000;font-weight:bold">&lt;</span>function deco<span style="color:#000;font-weight:bold">.&lt;</span><span style="color:#0086b3">locals</span><span style="color:#000;font-weight:bold">&gt;.</span>inner at <span style="color:#099">0x10063b598</span><span style="color:#000;font-weight:bold">&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>装饰器可以像常规的可调用对象那样调用，其参数是另一个函数。有时，这样做更方便，尤其是做元编程（在运行时改变程序的行为）时。综上，装饰器的一大特性是，能把被装饰的函数替换成其他函数。第二个特性是，装饰器在加载模块时立即执行。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">registry <span style="color:#000;font-weight:bold">=</span> []  <span style="color:#998;font-style:italic"># registry 保存被 @register 装饰的函数引用。</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">register</span>(func):  <span style="color:#998;font-style:italic"># register 的参数是一个函数。</span>
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running register(</span><span style="color:#d14">%s</span><span style="color:#d14">)&#39;</span> <span style="color:#000;font-weight:bold">%</span> func)  <span style="color:#998;font-style:italic"># 为了演示，显示被装饰的函数。</span>
+    registry<span style="color:#000;font-weight:bold">.</span>append(func)  <span style="color:#998;font-style:italic">#把 func 存入 registry。</span>
+    <span style="color:#000;font-weight:bold">return</span> func  <span style="color:#998;font-style:italic"># 返回 func：必须返回函数；这里返回的函数与通过参数传入的一样。</span>
+<span style="color:#3c5d5d;font-weight:bold">@register</span>  <span style="color:#998;font-style:italic"># f1 和 f2 被 @register 装饰。</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f1</span>():
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running f1()&#39;</span>)
+<span style="color:#3c5d5d;font-weight:bold">@register</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f2</span>():
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running f2()&#39;</span>)
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f3</span>(): <span style="color:#998;font-style:italic"># f3 没有装饰。</span>
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running f3()&#39;</span>)
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">main</span>():  <span style="color:#998;font-style:italic"># main 显示 registry，然后调用 f1()、f2() 和 f3()。</span>
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;running main()&#39;</span>)
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;registry -&gt;&#39;</span>, registry)
+    f1()
+    f2()
+    f3()
+<span style="color:#000;font-weight:bold">if</span> __name__<span style="color:#000;font-weight:bold">==</span><span style="color:#d14">&#39;__main__&#39;</span>:
+    main()  <span style="color:#998;font-style:italic"># 只有把 registration.py 当作脚本运行时才调用 main()。</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a61717;background-color:#e3d2d2">$</span> python3 registration<span style="color:#000;font-weight:bold">.</span>py
+running register(<span style="color:#000;font-weight:bold">&lt;</span>function f1 at <span style="color:#099">0x100631bf8</span><span style="color:#000;font-weight:bold">&gt;</span>)
+running register(<span style="color:#000;font-weight:bold">&lt;</span>function f2 at <span style="color:#099">0x100631c80</span><span style="color:#000;font-weight:bold">&gt;</span>)
+running main()
+registry <span style="color:#000;font-weight:bold">-&gt;</span> [<span style="color:#000;font-weight:bold">&lt;</span>function f1 at <span style="color:#099">0x100631bf8</span><span style="color:#000;font-weight:bold">&gt;</span>, <span style="color:#000;font-weight:bold">&lt;</span>function f2 at <span style="color:#099">0x100631c80</span><span style="color:#000;font-weight:bold">&gt;</span>]
+running f1()
+running f2()
+running f3()
+
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">import</span> <span style="color:#555">registration</span>
+running register(<span style="color:#000;font-weight:bold">&lt;</span>function f1 at <span style="color:#099">0x10063b1e0</span><span style="color:#000;font-weight:bold">&gt;</span>)
+running register(<span style="color:#000;font-weight:bold">&lt;</span>function f2 at <span style="color:#099">0x10063b268</span><span style="color:#000;font-weight:bold">&gt;</span>)
+
+<span style="color:#998;font-style:italic">#此时查看 registry 的值，得到的输出如下：</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> registration<span style="color:#000;font-weight:bold">.</span>registry
+[<span style="color:#000;font-weight:bold">&lt;</span>function f1 at <span style="color:#099">0x10063b1e0</span><span style="color:#000;font-weight:bold">&gt;</span>, <span style="color:#000;font-weight:bold">&lt;</span>function f2 at <span style="color:#099">0x10063b268</span><span style="color:#000;font-weight:bold">&gt;</span>]
+</code></pre></td></tr></table>
+</div>
+</div><p>上例子主要说明了装饰器的一个关键特性是，它们在被装饰的函数定义之后立即运行这通常是在导入时（即 Python 加载模块时）函数装饰器在导入模块时立即执行，而被装饰的函数只在明确调用时运行。这突出了 Python 程序员所说的导入时和运行时之间的区别。</p>
+<ul>
+<li>装饰器通常在一个模块中定义，然后应用到其他模块中的函数上。</li>
+<li>大多数装饰器会在内部定义一个函数，然后将其返回。</li>
+</ul>
+<p>下面给出三种修饰器的输出，以便思考</p>
+<ol>
+<li></li>
+</ol>
+<p>&laquo;&lt;running target()</p>
+<pre tabindex="0"><code>2. 
+```python
+&gt;&gt;&gt; def deco(func):
+...     def inner():
+...         print('running inner()')
+...     return inner
+...
+&gt;&gt;&gt; @deco
+... def target():
+...         print('running target()')
+...
+&gt;&gt;&gt; target()
+running inner()
+</code></pre><ol start="3">
+<li></li>
+</ol>
+<h2 id="变量作用域规则">变量作用域规则</h2>
+<p>给出三个例子对比</p>
+<ol>
+<li></li>
+<li></li>
+</ol>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">6</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f1</span>(a):
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(a)
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(b)
+<span style="color:#000;font-weight:bold">...</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> f1(<span style="color:#099">3</span>)
+<span style="color:#099">3</span>
+<span style="color:#099">6</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li></li>
+</ol>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">6</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f2</span>(a):
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(a)
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(b)
+<span style="color:#000;font-weight:bold">...</span>     b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">9</span>
+<span style="color:#000;font-weight:bold">...</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> f2(<span style="color:#099">3</span>)
+<span style="color:#099">3</span>
+Traceback (most recent call last):
+  File <span style="color:#d14">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#099">1</span>, <span style="color:#000;font-weight:bold">in</span> <span style="color:#000;font-weight:bold">&lt;</span>module<span style="color:#000;font-weight:bold">&gt;</span>
+  File <span style="color:#d14">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#099">3</span>, <span style="color:#000;font-weight:bold">in</span> f2
+<span style="color:#900;font-weight:bold">UnboundLocalError</span>: local variable <span style="color:#d14">&#39;b&#39;</span> referenced before assignment
+</code></pre></td></tr></table>
+</div>
+</div><p>在第三个例子中Python 编译函数的定义体时，它判断 b 是局部变量，因为在函数中给它赋值了。生成的字节码证实了这种判断，Python 会尝试从本地环境获取 b。后面调用 f2(3)时， f2 的定义体会获取并打印局部变量 a 的值，但是尝试获取局部变量 b 的值时，发现b 没有绑定值。</p>
+<p>这不是缺陷，而是设计选择：Python 不要求声明变量，但是假定在函数定义体中赋值的变量是局部变量。这比 JavaScript 的行为好多了，JavaScript 也不要求声明变量，但是如果忘记把变量声明为局部变量（使用 var），可能会在不知情的情况下获取全局变量。</p>
+<p>如果在函数中赋值时想让解释器把 b 当成全局变量，要使用 global 声明：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">6</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">f3</span>(a):
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#000;font-weight:bold">global</span> b
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(a)
+<span style="color:#000;font-weight:bold">...</span>     <span style="color:#0086b3">print</span>(b)
+<span style="color:#000;font-weight:bold">...</span>     b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">9</span>
+<span style="color:#000;font-weight:bold">...</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> f3(<span style="color:#099">3</span>)
+<span style="color:#099">3</span>
+<span style="color:#099">6</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b
+<span style="color:#099">9</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> f3(<span style="color:#099">3</span>)
+<span style="color:#099">3</span>
+<span style="color:#099">9</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">30</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b
+<span style="color:#099">30</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="闭包">闭包</h2>
+<p>只有涉及嵌套函数时才有闭包问题。
+闭包指延伸了作用域的函数，其中包含函数定义体中引用、但是不在定义体中定义的非全局变量。函数是不是匿名的没有关系，关键是它能访问定义体之外定义的非全局变量。</p>
+<p>示例</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">make_averager</span>():
+    series <span style="color:#000;font-weight:bold">=</span> []
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">averager</span>(new_value):
+        series<span style="color:#000;font-weight:bold">.</span>append(new_value)
+        total <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">sum</span>(series)
+        <span style="color:#000;font-weight:bold">return</span> total<span style="color:#000;font-weight:bold">/</span><span style="color:#0086b3">len</span>(series)
+    <span style="color:#000;font-weight:bold">return</span> averager
+
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg <span style="color:#000;font-weight:bold">=</span> make_averager()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg(<span style="color:#099">10</span>)
+<span style="color:#099">10.0</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg(<span style="color:#099">11</span>)
+<span style="color:#099">10.5</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg(<span style="color:#099">12</span>)
+<span style="color:#099">11.0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>series 是 make_averager 函数的局部变量，因为那个函数的定义体中初始化了series：series = []。
+在 averager 函数中，series 是自由变量（free variable）。这是一个技术术语，指未在本地作用域中绑定的变量
+
+        <img class="mx-auto" alt="averager 的闭包延伸到那个函数的作用域之外，包含自由变量 series 的绑定" src="png_3.png" />   
+    </p>
+<p>审查 make_averager（见下例）创建的函数</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg<span style="color:#000;font-weight:bold">.</span>__code__<span style="color:#000;font-weight:bold">.</span>co_varnames
+(<span style="color:#d14">&#39;new_value&#39;</span>, <span style="color:#d14">&#39;total&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg<span style="color:#000;font-weight:bold">.</span>__code__<span style="color:#000;font-weight:bold">.</span>co_freevars
+(<span style="color:#d14">&#39;series&#39;</span>,)
+</code></pre></td></tr></table>
+</div>
+</div><p>series 的绑定在返回的 avg 函数的 <strong>closure</strong> 属性中。avg.<strong>closure</strong> 中的各个元素对应于 avg.<strong>code</strong>.co_freevars 中的一个名称。这些元素是 cell 对象，有个cell_contents 属性，保存着真正的值。这些属性的值如下例 所示。
+示例 　接续上例</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg<span style="color:#000;font-weight:bold">.</span>__code__<span style="color:#000;font-weight:bold">.</span>co_freevars
+(<span style="color:#d14">&#39;series&#39;</span>,)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg<span style="color:#000;font-weight:bold">.</span>__closure__
+(<span style="color:#000;font-weight:bold">&lt;</span>cell at <span style="color:#099">0x107a44f78</span>: <span style="color:#0086b3">list</span> <span style="color:#0086b3">object</span> at <span style="color:#099">0x107a91a48</span><span style="color:#000;font-weight:bold">&gt;</span>,)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg<span style="color:#000;font-weight:bold">.</span>__closure__[<span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>cell_contents
+[<span style="color:#099">10</span>, <span style="color:#099">11</span>, <span style="color:#099">12</span>]
+</code></pre></td></tr></table>
+</div>
+</div><p>综上，闭包是一种函数，它会保留定义函数时存在的自由变量的绑定，这样调用函数时，虽然定义作用域不可用了，但是仍能使用那些绑定。</p>
+<p>只有嵌套在其他函数中的函数才可能需要处理不在全局作用域中的外部变量。</p>
+<h3 id="nonlocal声明">nonlocal声明</h3>
+<p>错误示例</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">make_averager</span>():
+    count <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>
+    total <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">averager</span>(new_value):
+        count <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">1</span>
+        total <span style="color:#000;font-weight:bold">+=</span> new_value
+        <span style="color:#000;font-weight:bold">return</span> total <span style="color:#000;font-weight:bold">/</span> count
+    <span style="color:#000;font-weight:bold">return</span> averager
+
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg <span style="color:#000;font-weight:bold">=</span> make_averager()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> avg(<span style="color:#099">10</span>)
+Traceback (most recent call last):
+  <span style="color:#000;font-weight:bold">...</span>
+<span style="color:#900;font-weight:bold">UnboundLocalError</span>: local variable <span style="color:#d14">&#39;count&#39;</span> referenced before assignment
+</code></pre></td></tr></table>
+</div>
+</div><p>对数字、字符串、元组等不可变类型来说，只能读取，不能更新。如果尝试重新绑定，例如 count = count + 1，其实会隐式创建局部变量 count。这样，count 就不是自由变量了，因此不会保存在闭包中。
+而之前的列表series，我们没有给 series 赋值，我们只是调用series.append，并把它传给 sum 和 len。也就是说，我们利用了列表是可变的对象这一事实。</p>
+<p>为了解决这个问题，Python 3 引入了 nonlocal 声明。
+它的作用是把变量标记为自由变量，即使在函数中为变量赋予新值了，也会变成自由变量。如果为 nonlocal 声明的变量赋予新值，闭包中保存的绑定会更新。最新版 make_averager 的正确实现如示例 7-14 所示。</p>
+<p>正确示例</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">make_averager</span>():
+    count <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>
+    total <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0</span>
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">averager</span>(new_value):
+        <span style="color:#000;font-weight:bold">nonlocal</span> count, total
+        count <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">1</span>
+        total <span style="color:#000;font-weight:bold">+=</span> new_value
+        <span style="color:#000;font-weight:bold">return</span> total <span style="color:#000;font-weight:bold">/</span> count
+    <span style="color:#000;font-weight:bold">return</span> averager
+</code></pre></td></tr></table>
+</div>
+</div><p>对于python2中没有nonlocal声明的替代方法
+把内部函数需要修改的变量（如 count 和 total）存储为可变对象（如字典或简单的实例）的元素或属性，并且把那个对象绑定给一个自由变量。也就是利用可变对象的可变。</p>
+<h3 id="修饰器原理">修饰器原理</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">time</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">clock</span>(func):
+    <span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">clocked</span>(<span style="color:#000;font-weight:bold">*</span>args):  <span style="color:#998;font-style:italic">#  定义内部函数 clocked，它接受任意个定位参数。</span>
+        t0 <span style="color:#000;font-weight:bold">=</span> time<span style="color:#000;font-weight:bold">.</span>perf_counter()
+        result <span style="color:#000;font-weight:bold">=</span> func(<span style="color:#000;font-weight:bold">*</span>args)  <span style="color:#998;font-style:italic"># 这行代码可用，是因为 clocked 的闭包中包含自由变量 func。</span>
+        elapsed <span style="color:#000;font-weight:bold">=</span> time<span style="color:#000;font-weight:bold">.</span>perf_counter() <span style="color:#000;font-weight:bold">-</span> t0
+        name <span style="color:#000;font-weight:bold">=</span> func<span style="color:#000;font-weight:bold">.</span>__name__
+        arg_str <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;, &#39;</span><span style="color:#000;font-weight:bold">.</span>join(<span style="color:#0086b3">repr</span>(arg) <span style="color:#000;font-weight:bold">for</span> arg <span style="color:#000;font-weight:bold">in</span> args)
+        <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;[</span><span style="color:#d14">%0.8f</span><span style="color:#d14">s] </span><span style="color:#d14">%s</span><span style="color:#d14">(</span><span style="color:#d14">%s</span><span style="color:#d14">) -&gt; </span><span style="color:#d14">%r</span><span style="color:#d14">&#39;</span> <span style="color:#000;font-weight:bold">%</span> (elapsed, name, arg_str, result))
+        <span style="color:#000;font-weight:bold">return</span> result
+    <span style="color:#000;font-weight:bold">return</span> clocked <span style="color:#998;font-style:italic"># 返回内部函数，取代被装饰的函数。示例 7-16 演示了 clock 装饰器的用法。</span>
+
+<span style="color:#3c5d5d;font-weight:bold">@clock</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">snooze</span>(seconds):
+    time<span style="color:#000;font-weight:bold">.</span>sleep(seconds)
+<span style="color:#3c5d5d;font-weight:bold">@clock</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">factorial</span>(n):
+    <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">1</span> <span style="color:#000;font-weight:bold">if</span> n <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">2</span> <span style="color:#000;font-weight:bold">else</span> n<span style="color:#000;font-weight:bold">*</span>factorial(n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+<span style="color:#000;font-weight:bold">if</span> __name__<span style="color:#000;font-weight:bold">==</span><span style="color:#d14">&#39;__main__&#39;</span>:
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;*&#39;</span> <span style="color:#000;font-weight:bold">*</span> <span style="color:#099">40</span>, <span style="color:#d14">&#39;Calling snooze(.123)&#39;</span>)
+    snooze(<span style="color:#099">.123</span>)
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;*&#39;</span> <span style="color:#000;font-weight:bold">*</span> <span style="color:#099">40</span>, <span style="color:#d14">&#39;Calling factorial(6)&#39;</span>)
+    <span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;6! =&#39;</span>, factorial(<span style="color:#099">6</span>))
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#3c5d5d;font-weight:bold">@clock</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">factorial</span>(n):
+    <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">1</span> <span style="color:#000;font-weight:bold">if</span> n <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">2</span> <span style="color:#000;font-weight:bold">else</span> n<span style="color:#000;font-weight:bold">*</span>factorial(n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>等价于</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">factorial</span>(n):
+    <span style="color:#000;font-weight:bold">return</span> <span style="color:#099">1</span> <span style="color:#000;font-weight:bold">if</span> n <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">2</span> <span style="color:#000;font-weight:bold">else</span> n<span style="color:#000;font-weight:bold">*</span>factorial(n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+factorial <span style="color:#000;font-weight:bold">=</span> clock(factorial)
+</code></pre></td></tr></table>
+</div>
+</div><p>在修饰器里factorial 会作为 func 参数传给 clock。然后，factorial其实已经成为了clocked的自由变量了，然后 clock 函数会返回 clocked 函数，Python 解释器在背后会把 clocked 赋值给factorial。此时的factorial已经是clocked函数的引用了。而真正的一开始的factorial函数已经是clocked函数的自由变量。从而形成嵌套函数
+我们可以查看 factorial 的 <strong>name</strong> 属性，
+会得到如下结果：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">import</span> <span style="color:#555">clockdeco_demo</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> clockdeco_demo<span style="color:#000;font-weight:bold">.</span>factorial<span style="color:#000;font-weight:bold">.</span>__name__
+<span style="color:#d14">&#39;clocked&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>所以，现在 factorial 保存的是 clocked 函数的引用。自此之后，每次调用factorial(n)，执行的都是 clocked(n)。
+clocked 大致做了下面几件事。</p>
+<p>(1) 记录初始时间 t0。
+(2) 调用原来的 factorial 函数，保存结果。
+(3) 计算经过的时间。
+(4) 格式化收集的数据，然后打印出来。
+(5) 返回第 2 步保存的结果。
+<!-- raw HTML omitted -->这是装饰器的典型行为：把被装饰的函数替换成新函数，二者接受相同的参数，而且（通常）返回被装饰的函数本该返回的值，同时还会做些额外操作。<!-- raw HTML omitted --></p>
+<h3 id="使用functoolslru_cache做备忘">使用functools.lru_cache做备忘</h3>
+<p>functools.lru_cache 是非常实用的装饰器，它实现了备忘（memoization）功能。这是一项优化技术，它把耗时的函数的结果保存起来，避免传入相同的参数时重复计算。LRU三个字母是“Least Recently Used”的缩写，表明缓存不会无限制增长，一段时间不用的缓存条目会被扔掉。</p>
+<p>示例</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">functools</span>
+<span style="color:#000;font-weight:bold">from</span> <span style="color:#555">clockdeco</span> <span style="color:#000;font-weight:bold">import</span> clock
+<span style="color:#3c5d5d;font-weight:bold">@functools</span><span style="color:#000;font-weight:bold">.</span>lru_cache() <span style="color:#998;font-style:italic"># 注意，必须像常规函数那样调用 lru_cache。这一行中有一对括号：@functools.lru_cache()。这么做的原因是，lru_cache 可以接受配置参数，稍后说明。</span>
+<span style="color:#3c5d5d;font-weight:bold">@clock</span>  <span style="color:#998;font-style:italic">#  这里叠放了装饰器：@lru_cache() 应用到 @clock 返回的函数上。</span>
+<span style="color:#000;font-weight:bold">def</span> <span style="color:#900;font-weight:bold">fibonacci</span>(n):
+    <span style="color:#000;font-weight:bold">if</span> n <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">2</span>:
+        <span style="color:#000;font-weight:bold">return</span> n
+    <span style="color:#000;font-weight:bold">return</span> fibonacci(n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">2</span>) <span style="color:#000;font-weight:bold">+</span> fibonacci(n<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+<span style="color:#000;font-weight:bold">if</span> __name__<span style="color:#000;font-weight:bold">==</span><span style="color:#d14">&#39;__main__&#39;</span>:
+    <span style="color:#0086b3">print</span>(fibonacci(<span style="color:#099">6</span>))
+
+<span style="color:#998;font-style:italic">#这样一来，执行时间减半了，而且 n 的每个值只调用一次函数：</span>
+<span style="color:#a61717;background-color:#e3d2d2">$</span> python3 fibo_demo_lru<span style="color:#000;font-weight:bold">.</span>py
+[<span style="color:#099">0.00000119</span>s] fibonacci(<span style="color:#099">0</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">0</span>
+[<span style="color:#099">0.00000119</span>s] fibonacci(<span style="color:#099">1</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">1</span>
+[<span style="color:#099">0.00010800</span>s] fibonacci(<span style="color:#099">2</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">1</span>
+[<span style="color:#099">0.00000787</span>s] fibonacci(<span style="color:#099">3</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">2</span>
+[<span style="color:#099">0.00016093</span>s] fibonacci(<span style="color:#099">4</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">3</span>
+[<span style="color:#099">0.00001216</span>s] fibonacci(<span style="color:#099">5</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">5</span>
+[<span style="color:#099">0.00025296</span>s] fibonacci(<span style="color:#099">6</span>) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#099">8</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>特别要注意，lru_cache 可以使用两个可选的参数来配置。它的签名是：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">functools<span style="color:#000;font-weight:bold">.</span>lru_cache(maxsize<span style="color:#000;font-weight:bold">=</span><span style="color:#099">128</span>, typed<span style="color:#000;font-weight:bold">=</span><span style="color:#000;font-weight:bold">False</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>maxsize 参数指定存储多少个调用的结果。缓存满了之后，旧的结果会被扔掉，腾出空间。为了得到最佳性能，maxsize 应该设为 2 的幂。</p>
+<p>typed 参数如果设为 True，把不同参数类型得到的结果分开保存，即把通常认为相等的浮点数和整数参数（如 1 和 1.0）区分开。</p>
+<p>顺便说一下，因为 lru_cache 使用字典存储结果，而且键根据调用时传入的定位参数和关键字参数创建，所以被 lru_cache 装饰的函数，它的所有参数都必须是可散列的。</p>
+<h3 id="functoolssingledispatch-装饰器">functools.singledispatch 装饰器</h3>
+<p>单分派泛函数</p>
+<p>Python 3.4 新增的 functools.singledispatch 装饰器可以把整体方案拆分成多个模块，甚至可以为你无法修改的类提供专门的函数。使用 @singledispatch 装饰的普通函数会变成泛函数（generic function）：根据第一个参数的类型，以不同方式执行相同操作的一组函数。</p>
+<p>这就是单分派。如果根据多个参数选择专门的函数，那就是多分派了。</p>
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="http://diudiu6.com">裘丢丢</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/">http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/">一等函数</a></li>
+        
+        <li><a href="/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">使用一等函数设计模式</a></li>
+        
+        <li><a href="/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/">文本和字节序列</a></li>
+        
+        <li><a href="/post/%E5%AD%97%E5%85%B8%E5%92%8C%E9%9B%86%E5%90%88/">字典和集合</a></li>
+        
+        <li><a href="/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/">序列构成的数组</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></li>
+                
+                <li><a href='/tags/learning'>learning</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="http://diudiu6.com">知其然，知其所以然 By 裘丢丢</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-P4G4EG6P5G', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://diudiu6.com/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://diudiu6.com">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/" title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/" title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" title="2. 两数相加">2. 两数相加</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/" title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/" title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/" title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1.-Two-Sum/" title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/" title="类继承">类继承</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;/">C&#43;&#43; (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/CNN/">CNN (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Easy/">Easy (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/LeetCode/">LeetCode (9)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Medium/">Medium (5)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Python/">Python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/TensorFlow/">TensorFlow (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/hash/">hash (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/">page 搭建 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/">使用技巧 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">广度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">深度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习 (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/">爬虫 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/">第七章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/">第三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/">第九章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/">第二章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/">第五章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/">第八章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/">第六章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/">第十三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/">第四章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E9%80%92%E5%BD%92/">递归 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="http://diudiu6.com/tags/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus</a>
+    
+    <a href="http://diudiu6.com/tags/CNN/">CNN</a>
+    
+    <a href="http://diudiu6.com/tags/LeetCode/">LeetCode</a>
+    
+    <a href="http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法</a>
+    
+    <a href="http://diudiu6.com/tags/TensorFlow/">TensorFlow</a>
+    
+    <a href="http://diudiu6.com/tags/Windows/">Windows</a>
+    
+    <a href="http://diudiu6.com/tags/hash/">hash</a>
+    
+    <a href="http://diudiu6.com/tags/learning/">learning</a>
+    
+    <a href="http://diudiu6.com/tags/xpath/">xpath</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/">初等数学</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/">回溯</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/">广度优先搜索 BFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/">深度优先搜索 DFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+    
+    <a href="http://diudiu6.com/tags/%E9%80%92%E5%BD%92/">递归</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://www.flysnow.org/" title="飞雪无情的博客">飞雪无情的博客</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://diudiu6.com/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
