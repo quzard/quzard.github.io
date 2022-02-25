@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>深度优先搜索 on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/</link>
+    <description>Recent content in 深度优先搜索 on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 21 Aug 2020 17:21:10 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>111. Minimum Depth of Binary Tree</title>
+      <link>http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/</link>
+      <pubDate>Fri, 21 Aug 2020 17:21:10 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/</guid>
+      <description>&lt;p&gt;Given a binary tree, find its minimum depth.&lt;/p&gt;
+&lt;p&gt;The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; A leaf is a node with no children.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Given binary tree &lt;code&gt;[3,9,20,null,null,15,7]&lt;/code&gt;,&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;    3
+   / \
+  9  20
+    /  \
+   15   7
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;return its minimum depth = 2.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

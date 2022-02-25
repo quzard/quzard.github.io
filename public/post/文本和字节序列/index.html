@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>文本和字节序列 | 知其然，知其所以然</title>
+    <meta property="og:title" content="文本和字节序列 - 知其然，知其所以然">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-01-31T21:59:31&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-01-31T21:59:31&#43;08:00'>
+        
+    <meta name="Keywords" content="golang">
+    <meta name="description" content="文本和字节序列">
+        
+    <meta name="author" content="裘丢丢">
+    <meta property="og:url" content="http://diudiu6.com/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://diudiu6.com">
+                        知其然，知其所以然
+                    </a>
+                
+                <p class="description">知识广度是深度的副产品</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://diudiu6.com">首页</a>
+                    
+                    <a  href="http://diudiu6.com/tools/" title="工具">工具</a>
+                    
+                    <a  href="http://diudiu6.com/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://diudiu6.com/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents"></nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if (leftPos < 220) {
+                postToc.css({ "width": leftPos - 10, "margin-left": (0 - leftPos) })
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+
+        if ($("#TableOfContents").children().length < 1) {
+            $(".post-toc").remove();
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">文本和字节序列</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年1月31日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Python'>Python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></span>
+            
+            <span class="meta-category"><a href='/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0'>第四章</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <p>一个字符串是一个字符序列。字符是Unicode字符
+字符的标识是码位。
+字符的具体表述取决于所用的编码。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> s <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;cafe&#39;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b <span style="color:#000;font-weight:bold">=</span> s<span style="color:#000;font-weight:bold">.</span>encode(<span style="color:#d14">&#39;utf8&#39;</span>)  <span style="color:#998;font-style:italic">#使用UTF-8把str对象编码成bytes对象  把码位转换成字节序列</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> a <span style="color:#000;font-weight:bold">=</span> b<span style="color:#000;font-weight:bold">.</span>decode(<span style="color:#d14">&#39;utf8&#39;</span>)  <span style="color:#998;font-style:italic">#使用UTF-8把bytes对象解码成str对象  把字节序列转换成码位</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> b
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">b</span><span style="color:#d14">&#39;cafe&#39;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> a
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;cafe&#39;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> s
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;cafe&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>bytes 字面量以b开头
+python3里的 str 类型相当于python2 里的 Unicode类型</p>
+<p>bytes 或 bytearry 对象的各个元素是介于0-255（含）之间的整数
+bytes 的切片仍然是 bytes 对象
+my_bytes[0] == my_bytes[:1]
+书本P85</p>
+<p>re模块中的正则表达式也能处理二进制序列</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> a <span style="color:#000;font-weight:bold">=</span><span style="color:#099">5</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">del</span> a
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> a
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> Traceback (most recent call last):
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span>   File <span style="color:#d14">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#099">1</span>, <span style="color:#000;font-weight:bold">in</span> <span style="color:#000;font-weight:bold">&lt;</span>module<span style="color:#000;font-weight:bold">&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#900;font-weight:bold">NameError</span>: name <span style="color:#d14">&#39;a&#39;</span> <span style="color:#000;font-weight:bold">is</span> <span style="color:#000;font-weight:bold">not</span> defined
+</code></pre></td></tr></table>
+</div>
+</div><p>del 释放内存</p>
+<p>memory views<br>
+docs.python.org/3/library/stdtypes.html#memory-views
+struct
+docs.python.org/3/library/struct.html</p>
+<p>UnicodeEncodeError 把字符串转换成二进制序列时的问题
+UnicodeDecodeError 把二进制序列转换成字符串时的问题
+SyntaxError        如果源码的编码与预期不符，加载python模块时的问题</p>
+<p>s.encode(&lsquo;utf8&rsquo;,errors = &lsquo;ignore&rsquo;)  把无法编码的字符跳过
+s.encode(&lsquo;utf8&rsquo;,errors = &lsquo;replace&rsquo;) 把无法编码的字符代替为 &lsquo;?&rsquo;
+s.encode(&lsquo;utf8&rsquo;,errors = &lsquo;xmlcharrefreplace&rsquo;)  把无法编码的字符替换成XML实体</p>
+<p>处理文本的最佳实践是“Unicode 三明治”。
+要尽早把输入（例如读取文件时）的字节序列解码成字符串。这种三明治中的“肉片”
+是程序的业务逻辑，在这里只能处理字符串对象。在其他处理过程中，一定不能编码或解码。
+对输出来说，则要尽量晚地把字符串编码成字节序列。</p>
+<p>python3内置的 open 函数会在读取文件时做必要的解码，以文本模式写入文件时还会做
+必要的编码，所以调用 my_file.read()方法得到的以及传给 my_file.write(text)
+方法的都是字符串对象
+如果依赖默认编码，会遇到麻烦。
+系统默认的编码（Windows 1252）</p>
+<p>需要在多台设备中或多种场合下运行的代码，一定不能依赖默认编码。打开文
+件时始终应该明确传入 encoding= 参数，因为不同的设备使用的默认编码可能不
+同，有时隔一天也会发生变化。</p>
+<p>如果打开文件是为了写入，但是没有指定编码参数，会使用区域设置中的默认编码，而且
+使用那个编码也能正确读取文件。但是，如果脚本要生成文件，而字节的内容取决于平台
+或同一平台中的区域设置，那么就可能导致兼容问题。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;cafe.txt&#39;</span>, <span style="color:#d14">&#39;w&#39;</span>, encoding<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;utf_8&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp  <span style="color:#998;font-style:italic"># 默认情况下，open 函数采用文本模式，返回一个 TextIOWrapper 对象。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>_io<span style="color:#000;font-weight:bold">.</span>TextIOWrapper name<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;cafe.txt&#39;</span> mode<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;w&#39;</span> encoding<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;utf_8&#39;</span><span style="color:#000;font-weight:bold">&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp<span style="color:#000;font-weight:bold">.</span>write(<span style="color:#d14">&#39;café&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#099">4</span>  <span style="color:#998;font-style:italic"># 在 TextIOWrapper 对象上调用 write 方法返回写入的 Unicode 字符数。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp<span style="color:#000;font-weight:bold">.</span>close()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">import</span> <span style="color:#555">os</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> os<span style="color:#000;font-weight:bold">.</span>stat(<span style="color:#d14">&#39;cafe.txt&#39;</span>)<span style="color:#000;font-weight:bold">.</span>st_size
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#099">5</span>  <span style="color:#998;font-style:italic"># os.stat 报告文件中有 5 个字节；UTF-8 编码的 &#39;é&#39; 占两个字节，0xc3 和 0xa9。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp2 <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;cafe.txt&#39;</span>)
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp2  <span style="color:#998;font-style:italic"># 打开文本文件时没有显式指定编码，返回一个 TextIOWrapper 对象，编码是区域设置</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#998;font-style:italic">#中的默认值</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>_io<span style="color:#000;font-weight:bold">.</span>TextIOWrapper name<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;cafe.txt&#39;</span> mode<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;r&#39;</span> encoding<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;cp1252&#39;</span><span style="color:#000;font-weight:bold">&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp2<span style="color:#000;font-weight:bold">.</span>encoding <span style="color:#998;font-style:italic">#TextIOWrapper 对象有个 encoding 属性；查看它，发现这里的编码是 cp1252。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;cp1252&#39;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp2<span style="color:#000;font-weight:bold">.</span>read()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;cafÃ©&#39;</span>  <span style="color:#998;font-style:italic"># 在 Windows cp1252 编码中，0xc3 字节是“Ã”（带波形符的 A），0xa9 字节是版权符</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> 号<span style="color:#a61717;background-color:#e3d2d2">。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp3 <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;cafe.txt&#39;</span>, encoding<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;utf_8&#39;</span>)  <span style="color:#998;font-style:italic"># 使用正确的编码打开那个文件。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp3
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>_io<span style="color:#000;font-weight:bold">.</span>TextIOWrapper name<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;cafe.txt&#39;</span> mode<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;r&#39;</span> encoding<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;utf_8&#39;</span><span style="color:#000;font-weight:bold">&gt;</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp3<span style="color:#000;font-weight:bold">.</span>read()
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">&#39;café&#39;</span>  <span style="color:#998;font-style:italic">#结果符合预期：得到的是四个 Unicode 字符 &#39;café&#39;。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp4 <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;cafe.txt&#39;</span>, <span style="color:#d14">&#39;rb&#39;</span>)  <span style="color:#998;font-style:italic"># &#39;rb&#39; 标志指明在二进制模式中读取文件。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp4
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span>_io<span style="color:#000;font-weight:bold">.</span>BufferedReader name<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;cafe.txt&#39;</span><span style="color:#000;font-weight:bold">&gt;</span>  <span style="color:#998;font-style:italic"># 返回的是 BufferedReader 对象，而不是 TextIOWrapper 对象。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> fp4<span style="color:#000;font-weight:bold">.</span>read()  <span style="color:#998;font-style:italic">#读取返回的字节序列，结果与预期相符。</span>
+<span style="color:#000;font-weight:bold">&gt;&gt;&gt;</span> <span style="color:#d14">b</span><span style="color:#d14">&#39;caf</span><span style="color:#d14">\xc3\xa9</span><span style="color:#d14">&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">locale<span style="color:#000;font-weight:bold">.</span>getpreferredencoding() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;cp936&#39;</span><span style="color:#998;font-style:italic"># locale.getpreferredencoding() 是最重要的设置。</span>
+                 <span style="color:#0086b3">type</span>(my_file) <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#000;font-weight:bold">class</span> <span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#458;font-weight:bold">_io</span><span style="color:#000;font-weight:bold">.</span>TextIOWrapper<span style="color:#d14">&#39;&gt;</span>
+              my_file<span style="color:#000;font-weight:bold">.</span>encoding <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;cp936&#39;</span><span style="color:#998;font-style:italic"># 文本文件默认使用 locale.getpreferredencoding()。</span>
+           sys<span style="color:#000;font-weight:bold">.</span>stdout<span style="color:#000;font-weight:bold">.</span>isatty() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#000;font-weight:bold">True</span><span style="color:#998;font-style:italic"># 输出到控制台中，因此 sys.stdout.isatty() 返回 True。</span>
+           sys<span style="color:#000;font-weight:bold">.</span>stdout<span style="color:#000;font-weight:bold">.</span>encoding <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;utf-8&#39;</span><span style="color:#998;font-style:italic"># 因此，sys.stdout.encoding 与控制台的编码相同。</span>
+            sys<span style="color:#000;font-weight:bold">.</span>stdin<span style="color:#000;font-weight:bold">.</span>isatty() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#000;font-weight:bold">True</span>
+            sys<span style="color:#000;font-weight:bold">.</span>stdin<span style="color:#000;font-weight:bold">.</span>encoding <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;utf-8&#39;</span>
+           sys<span style="color:#000;font-weight:bold">.</span>stderr<span style="color:#000;font-weight:bold">.</span>isatty() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#000;font-weight:bold">True</span>
+           sys<span style="color:#000;font-weight:bold">.</span>stderr<span style="color:#000;font-weight:bold">.</span>encoding <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;utf-8&#39;</span>
+      sys<span style="color:#000;font-weight:bold">.</span>getdefaultencoding() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;utf-8&#39;</span>
+   sys<span style="color:#000;font-weight:bold">.</span>getfilesystemencoding() <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#d14">&#39;utf-8&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>关于编码默认值的最佳建议是：别依赖默认值。</p>
+<p>使用 unicodedata.normalize 函数提供的 Unicode 规范化。这个
+函数的第一个参数是这 4 个字符串中的一个：&lsquo;NFC&rsquo;、&lsquo;NFD&rsquo;、&lsquo;NFKC&rsquo; 和 &lsquo;NFKD&rsquo;。
+NFC（Normalization Form C）使用最少的码位构成等价的字符串
+NFD 把组合字符分解成基字符和单独的组合字符。</p>
+<p>西方键盘通常能输出组合字符，因此用户输入的文本默认是 NFC 形式。不过，安全起
+见，保存文本之前，最好使用 normalize(&lsquo;NFC&rsquo;, user_text) 清洗字符串。</p>
+<p>使用 NFC 时，有些单字符会被规范成另一个单字符。这两个字符在视觉上是一样的，
+但是比较时并不相等，因整理此要规范化，防止出现意外</p>
+<p>另外两个规范化形式（NFKC 和 NFKD）的首字母缩略词中，字母 K 表
+示“compatibility”（兼容性）。这两种是较严格的规范化形式，对“兼容字符”有影响。
+在 NFKC 和 NFKD 形式中，各个兼容字符会被替换成一个或多个“兼容分解”字符，即便
+这样有些格式损失，但仍是“首选”表述——理想情况下，格式化是外部标记的职责，不应
+该由 Unicode 处理。下面举个例子。二分之一 &lsquo;½&rsquo;（U+00BD）经过兼容分解后得到的是
+三个字符序列 &lsquo;1/2&rsquo;；微符号 &lsquo;µ&rsquo;（U+00B5）经过兼容分解后得到的是小写字母
+&lsquo;μ&rsquo;（U+03BC）。</p>
+<p>str.casefold() 大小写折叠——把所有文本变成小写
+str.casefold() 和 str.lower() 得到不同结果的有 116 个码位。</p>
+<p>对于只包含 latin1 字符的字符串 s，s.casefold() 得到的结果与 s.lower() 一样，唯
+有两个例外：微符号 &lsquo;µ&rsquo; 会变成小写的希腊字母“μ”（在多数字体中二者看起来一样）；
+德语 Eszett（“sharp s”，ß）会变成“ss”。</p>
+<p>re.compile(r'\d+')  字符串类型
+re.compile(rb'\d+') 字节类型
+字符串正则表达式有个 re.ASCII 标志，它让 \w、\W、\b、\B、\d、\D、\s
+和 \S 只匹配 ASCII 字符。
+re模块 <a href="https://docs.python.org/3/library/re.html">https://docs.python.org/3/library/re.html</a></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">re</span>
+re_numbers_str <span style="color:#000;font-weight:bold">=</span> re<span style="color:#000;font-weight:bold">.</span>compile(<span style="color:#d14">r</span><span style="color:#d14">&#39;\d+&#39;</span>)     <span style="color:#a61717;background-color:#e3d2d2">➊</span>
+re_words_str <span style="color:#000;font-weight:bold">=</span> re<span style="color:#000;font-weight:bold">.</span>compile(<span style="color:#d14">r</span><span style="color:#d14">&#39;\w+&#39;</span>)
+re_numbers_bytes <span style="color:#000;font-weight:bold">=</span> re<span style="color:#000;font-weight:bold">.</span>compile(<span style="color:#d14">rb</span><span style="color:#d14">&#39;\d+&#39;</span>)  <span style="color:#a61717;background-color:#e3d2d2">➋</span>
+re_words_bytes <span style="color:#000;font-weight:bold">=</span> re<span style="color:#000;font-weight:bold">.</span>compile(<span style="color:#d14">rb</span><span style="color:#d14">&#39;\w+&#39;</span>)
+text_str <span style="color:#000;font-weight:bold">=</span> (<span style="color:#d14">&#34;Ramanujan saw </span><span style="color:#d14">\u0be7\u0bed\u0be8\u0bef</span><span style="color:#d14">&#34;</span>  <span style="color:#a61717;background-color:#e3d2d2">➌</span>
+            <span style="color:#d14">&#34; as 1729 = 1³ + 12³ = 9³ + 10³.&#34;</span>)        <span style="color:#a61717;background-color:#e3d2d2">➍</span>
+text_bytes <span style="color:#000;font-weight:bold">=</span> text_str<span style="color:#000;font-weight:bold">.</span>encode(<span style="color:#d14">&#39;utf_8&#39;</span>)  <span style="color:#a61717;background-color:#e3d2d2">➎</span>
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;Text&#39;</span>, <span style="color:#0086b3">repr</span>(text_str), sep<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;</span><span style="color:#d14">\n</span><span style="color:#d14">  &#39;</span>)
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;Numbers&#39;</span>)
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;  str  :&#39;</span>, re_numbers_str<span style="color:#000;font-weight:bold">.</span>findall(text_str))      <span style="color:#a61717;background-color:#e3d2d2">➏</span>
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;  bytes:&#39;</span>, re_numbers_bytes<span style="color:#000;font-weight:bold">.</span>findall(text_bytes))  <span style="color:#a61717;background-color:#e3d2d2">➐</span>
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;Words&#39;</span>)
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;  str  :&#39;</span>, re_words_str<span style="color:#000;font-weight:bold">.</span>findall(text_str))        <span style="color:#a61717;background-color:#e3d2d2">➑</span>
+<span style="color:#0086b3">print</span>(<span style="color:#d14">&#39;  bytes:&#39;</span>, re_words_bytes<span style="color:#000;font-weight:bold">.</span>findall(text_bytes))    <span style="color:#a61717;background-color:#e3d2d2">➒</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>前两个正则表达式是字符串类型。</li>
+<li>后两个正则表达式是字节序列类型。</li>
+<li>要搜索的 Unicode 文本，包括 1729 的泰米尔数字（逻辑行直到右括号才结束）。</li>
+<li>这个字符串在编译时与前一个拼接起来（参见 Python 语言参考手册中的“2.4.2. String
+literal concatenation”，https://docs.python.org/3/reference/lexical_analysis.html#string-literal-
+concatenation）。</li>
+<li>字节序列只能用字节序列正则表达式搜索。</li>
+<li>字符串模式 r'\d+' 能匹配泰米尔数字和 ASCII 数字。</li>
+<li>字节序列模式 rb'\d+' 只能匹配 ASCII 字节中的数字。</li>
+<li>字符串模式 r'\w+' 能匹配字母、上标、泰米尔数字和 ASCII 数字。</li>
+<li>字节序列模式 rb'\w+' 只能匹配 ASCII 字节中的字母和数字。</li>
+</ol>
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="http://diudiu6.com">裘丢丢</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="http://diudiu6.com/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/">http://diudiu6.com/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/%E5%AD%97%E5%85%B8%E5%92%8C%E9%9B%86%E5%90%88/">字典和集合</a></li>
+        
+        <li><a href="/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/">序列构成的数组</a></li>
+        
+        <li><a href="/archives/"></a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/%E6%B5%81%E7%95%85%E7%9A%84python'>流畅的python</a></li>
+                
+                <li><a href='/tags/learning'>learning</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="http://diudiu6.com">知其然，知其所以然 By 裘丢丢</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'G-P4G4EG6P5G', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://diudiu6.com/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://diudiu6.com">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-09-%E6%8B%AC%E5%8F%B7/" title="面试题 08.09. 括号">面试题 08.09. 括号</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E9%9D%A2%E8%AF%95%E9%A2%98-08-07-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%E7%BB%84%E5%90%88/" title="面试题 08.07. 无重复字符串的排列组合">面试题 08.07. 无重复字符串的排列组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/3-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" title="3. 无重复字符的最长子串">3. 无重复字符的最长子串</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/2-%E4%B8%A4%E6%95%B0%E7%9B%B8%E5%8A%A0/" title="2. 两数相加">2. 两数相加</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/17-%E7%94%B5%E8%AF%9D%E5%8F%B7%E7%A0%81%E7%9A%84%E5%AD%97%E6%AF%8D%E7%BB%84%E5%90%88/" title="17. 电话号码的字母组合">17. 电话号码的字母组合</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-Minimum-Depth-of-Binary-Tree/" title="111. Minimum Depth of Binary Tree">111. Minimum Depth of Binary Tree</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/111-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E6%B7%B1%E5%BA%A6/" title="111. 二叉树的最小深度">111. 二叉树的最小深度</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" title="LeetCode——1. 两数之和">LeetCode——1. 两数之和</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/1.-Two-Sum/" title="LeetCode——1.Two Sum">LeetCode——1.Two Sum</a>
+    </li>
+    
+    <li>
+        <a href="http://diudiu6.com/post/%E7%B1%BB%E7%BB%A7%E6%89%BF/" title="类继承">类继承</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;/">C&#43;&#43; (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/CNN/">CNN (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Easy/">Easy (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/LeetCode/">LeetCode (9)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Medium/">Medium (5)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/Python/">Python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/TensorFlow/">TensorFlow (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/hash/">hash (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/page-%E6%90%AD%E5%BB%BA/">page 搭建 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/">使用技巧 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">广度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python (8)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2/">深度优先搜索 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习 (2)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/">爬虫 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%83%E7%AB%A0/">第七章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B8%89%E7%AB%A0/">第三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%B9%9D%E7%AB%A0/">第九章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%8C%E7%AB%A0/">第二章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E4%BA%94%E7%AB%A0/">第五章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AB%E7%AB%A0/">第八章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%85%AD%E7%AB%A0/">第六章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%8D%81%E4%B8%89%E7%AB%A0/">第十三章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E7%AC%AC%E5%9B%9B%E7%AB%A0/">第四章 (1)</a></li>
+    
+    <li><a href="http://diudiu6.com/categories/%E9%80%92%E5%BD%92/">递归 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="http://diudiu6.com/tags/C&#43;&#43;-primer-plus/">C&#43;&#43; primer plus</a>
+    
+    <a href="http://diudiu6.com/tags/CNN/">CNN</a>
+    
+    <a href="http://diudiu6.com/tags/LeetCode/">LeetCode</a>
+    
+    <a href="http://diudiu6.com/tags/Markdown%E8%AF%AD%E6%B3%95/">Markdown语法</a>
+    
+    <a href="http://diudiu6.com/tags/TensorFlow/">TensorFlow</a>
+    
+    <a href="http://diudiu6.com/tags/Windows/">Windows</a>
+    
+    <a href="http://diudiu6.com/tags/hash/">hash</a>
+    
+    <a href="http://diudiu6.com/tags/learning/">learning</a>
+    
+    <a href="http://diudiu6.com/tags/xpath/">xpath</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%88%9D%E7%AD%89%E6%95%B0%E5%AD%A6/">初等数学</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%9B%9E%E6%BA%AF/">回溯</a>
+    
+    <a href="http://diudiu6.com/tags/%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-BFS/">广度优先搜索 BFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B5%81%E7%95%85%E7%9A%84python/">流畅的python</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-DFS/">深度优先搜索 DFS</a>
+    
+    <a href="http://diudiu6.com/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a>
+    
+    <a href="http://diudiu6.com/tags/%E9%80%92%E5%BD%92/">递归</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://www.flysnow.org/" title="飞雪无情的博客">飞雪无情的博客</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://diudiu6.com/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

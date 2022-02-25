@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>爬虫 on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/</link>
+    <description>Recent content in 爬虫 on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Thu, 28 Mar 2019 13:27:29 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/%E7%88%AC%E8%99%AB/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Python使用xpath爬取数据返回空列表解决方案</title>
+      <link>http://diudiu6.com/post/xpath%E5%AE%9A%E4%BD%8D%E5%A4%B1%E8%B4%A5%E5%8E%9F%E5%9B%A0/</link>
+      <pubDate>Thu, 28 Mar 2019 13:27:29 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/xpath%E5%AE%9A%E4%BD%8D%E5%A4%B1%E8%B4%A5%E5%8E%9F%E5%9B%A0/</guid>
+      <description>&lt;p&gt;最近学了下xpath定位来爬虫&lt;/p&gt;
+&lt;p&gt;刚刚试了下学校的srtp网站，发现爬取的数据返回是空列表&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

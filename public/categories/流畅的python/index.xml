@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>流畅的python on 知其然，知其所以然</title>
+    <link>http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/</link>
+    <description>Recent content in 流畅的python on 知其然，知其所以然</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Wed, 22 May 2019 10:23:52 +0800</lastBuildDate><atom:link href="http://diudiu6.com/categories/%E6%B5%81%E7%95%85%E7%9A%84python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>符合python风格的对象</title>
+      <link>http://diudiu6.com/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/</link>
+      <pubDate>Wed, 22 May 2019 10:23:52 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E7%AC%A6%E5%90%88python%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%AF%B9%E8%B1%A1/</guid>
+      <description>&lt;p&gt;得益于 Python 数据模型，自定义类型的行为可以像内置类型那样自然。实现如自然的行为，靠的不是继承，而是鸭子类型（duck typing）：我们只需按照预定行为实对象所需的方法即可。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>对象引用、可变性和垃圾回收</title>
+      <link>http://diudiu6.com/post/%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/</link>
+      <pubDate>Mon, 04 Feb 2019 13:10:57 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%AF%B9%E8%B1%A1%E5%BC%95%E7%94%A8%E5%8F%AF%E5%8F%98%E6%80%A7%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/</guid>
+      <description>&lt;p&gt;名称不是对象，而是单独的东西。&lt;/p&gt;
+&lt;p&gt;Python 的变量：变量是标注，而不是盒子。&lt;/p&gt;
+&lt;p&gt;Python 变量类似于 Java 中的引用式变量，因此最好把它们理解为附加在对象上的标注&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>函数装饰器和闭包</title>
+      <link>http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/</link>
+      <pubDate>Sat, 02 Feb 2019 10:41:29 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%87%BD%E6%95%B0%E8%A3%85%E9%A5%B0%E5%99%A8%E5%92%8C%E9%97%AD%E5%8C%85/</guid>
+      <description>&lt;h2 id=&#34;函数装饰器&#34;&gt;函数装饰器&lt;/h2&gt;
+&lt;p&gt;函数装饰器用于在源码中“标记”函数，以某种方式增强函数的行为。这是一项强大的功能，但是若想掌握，必须理解闭包。&lt;/p&gt;
+&lt;p&gt;装饰器是可调用的对象，其参数是另一个函数（被装饰的函数）。 装饰器可能会处理被装饰的函数，然后把它返回，或者将其替换成另一个函数或可调用对象。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>一等函数</title>
+      <link>http://diudiu6.com/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/</link>
+      <pubDate>Fri, 01 Feb 2019 22:03:30 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0/</guid>
+      <description>&lt;p&gt;“一等对象”定义为满足下述条件的程序实体：
+在运行时创建
+能赋值给变量或数据结构中的元素
+能作为参数传给函数
+能作为函数的返回结果&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>使用一等函数设计模式</title>
+      <link>http://diudiu6.com/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Fri, 01 Feb 2019 19:12:52 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E4%BD%BF%E7%94%A8%E4%B8%80%E7%AD%89%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
+      <description>&lt;p&gt;![&amp;ldquo;命令&amp;quot;模式] [png_1.png]&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>文本和字节序列</title>
+      <link>http://diudiu6.com/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/</link>
+      <pubDate>Thu, 31 Jan 2019 21:59:31 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E6%96%87%E6%9C%AC%E5%92%8C%E5%AD%97%E8%8A%82%E5%BA%8F%E5%88%97/</guid>
+      <description>&lt;p&gt;一个字符串是一个字符序列。字符是Unicode字符
+字符的标识是码位。
+字符的具体表述取决于所用的编码。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>字典和集合</title>
+      <link>http://diudiu6.com/post/%E5%AD%97%E5%85%B8%E5%92%8C%E9%9B%86%E5%90%88/</link>
+      <pubDate>Wed, 30 Jan 2019 21:59:31 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%AD%97%E5%85%B8%E5%92%8C%E9%9B%86%E5%90%88/</guid>
+      <description>&lt;p&gt;语法：isinstance（object，type）
+作用：来判断一个对象是否是一个已知的类型。&lt;/p&gt;
+&lt;p&gt;其第一个参数（object）为对象，第二个参数（type）为类型名(int…)或
+类型名的一个列表((int,list,float)是一个列表。其返回值为布尔型（True or flase）。&lt;/p&gt;
+&lt;p&gt;若对象的类型与参数二的类型相同则返回True。若参数二为一个元组，
+则若对象类型与元组中类型名之一相同即返回True。&lt;/p&gt;
+&lt;p&gt;散列类型的定义  &lt;a href=&#34;https://docs.python.org/3/glossary.html#term-hashable&#34;&gt;https://docs.python.org/3/glossary.html#term-hashable&lt;/a&gt;
+如果一个对象是可散列（可哈希）的，那么在这个对象的生命周期里，他的散列值（哈希值）
+是不变的，而且这个对象需要实现 &lt;strong&gt;hash&lt;/strong&gt;() 方法，另外可散列对象还要有 &lt;strong&gt;eq&lt;/strong&gt;()方法，
+这样才能跟其他键作比较。如果两个可散列对象是相等的，那么他们的散列值一定是一样的。
+原子不可变数据类型（str， bytes 和数据类型）都是可散列类型，frozenset 也是。元组的话，
+需要一个元组内所有的元素都是可散列类型，他才是可散列类型。&lt;/p&gt;
+&lt;p&gt;散列值是它们的 id() 函数的返回值&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>序列构成的数组</title>
+      <link>http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/</link>
+      <pubDate>Thu, 24 Jan 2019 20:51:23 +0800</pubDate>
+      
+      <guid>http://diudiu6.com/post/%E5%BA%8F%E5%88%97%E6%9E%84%E6%88%90%E7%9A%84%E6%95%B0%E7%BB%84/</guid>
+      <description>&lt;p&gt;不管是python的哪种数据结构，字符串、列表、字节序列、数组、XML 元素，抑或是数据库查询结果，它们都共用一套丰富的操作：迭代、切片、排序，还有拼接。&lt;/p&gt;
+&lt;p&gt;深入理解 Python 中的不同序列类型，不但能让我们避免重新发明轮子，它们的 API 还能帮助我们把自己定义的 API 设计得跟原生的序列一样，或者是跟未来可能出现的序列类型保持兼容。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
